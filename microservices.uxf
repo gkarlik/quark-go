@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>7</zoom_level>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>0</x>
+      <y>84</y>
+      <w>182</w>
+      <h>259</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;tier&gt;&gt; Client
+--
+
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>21</x>
+      <y>119</y>
+      <w>140</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Mobile
+-
+
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>301</x>
+      <y>84</y>
+      <w>245</w>
+      <h>420</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;tier&gt;&gt; Access
+-
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>364</x>
+      <y>119</y>
+      <w>175</w>
+      <h>378</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+API Gateway [1..n]
+-
+bg=gray
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>315</x>
+      <y>119</y>
+      <w>42</w>
+      <h>378</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+
+
+
+
+
+
+
+
+
+
+
+
+H
+A
+P
+R
+O
+X
+Y
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>147</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Authentication
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>182</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Authorization
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>217</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Diagnostics
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>252</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Health Monitoring
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>287</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Rate Limiter
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>322</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Discovery
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>392</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Circut Breaker
+
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>357</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Routing
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>427</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Business Logic
+
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>154</x>
+      <y>147</y>
+      <w>175</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=[]&lt;-&gt;[]
+HTTP(S)</panel_attributes>
+    <additional_attributes>230.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>735</x>
+      <y>119</y>
+      <w>175</w>
+      <h>273</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Service 1
+-
+group=12</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>742</x>
+      <y>147</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Authorization
+group=12</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>742</x>
+      <y>182</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Diagnostics
+group=12</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>742</x>
+      <y>217</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Health Monitoring
+group=12</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>742</x>
+      <y>252</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Discovery
+group=12</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>742</x>
+      <y>287</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Circut Breaker
+
+group=12</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>742</x>
+      <y>322</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Business Logic
+
+group=12</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>686</x>
+      <y>84</y>
+      <w>700</w>
+      <h>483</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;tier&gt;&gt; Server
+-</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>693</x>
+      <y>413</y>
+      <w>679</w>
+      <h>147</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Infrastructure
+-</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1197</x>
+      <y>119</y>
+      <w>175</w>
+      <h>273</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Service n
+-
+group=13</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1204</x>
+      <y>147</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Authorization
+group=13</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1204</x>
+      <y>182</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Diagnostics
+group=13</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1204</x>
+      <y>217</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Health Monitoring
+group=13</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1204</x>
+      <y>252</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Discovery
+group=13</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1204</x>
+      <y>287</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Circut Breaker
+
+group=13</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1204</x>
+      <y>322</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+Business Logic
+
+group=13</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>700</x>
+      <y>490</y>
+      <w>161</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;custer&gt;&gt; Consul
+-
+Discovery and Health Moniotoring
+group=15</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>882</x>
+      <y>490</y>
+      <w>147</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;custer&gt;&gt; RabbitMQ
+-
+Pub / Sub mechanism
+group=16</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>371</x>
+      <y>462</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Messaging
+
+group=14</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>742</x>
+      <y>357</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Messaging
+
+group=12</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1204</x>
+      <y>357</y>
+      <w>161</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;optional&gt;&gt; Messaging
+
+group=13</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1050</x>
+      <y>490</y>
+      <w>147</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;custer&gt;&gt; MongoDB
+-
+Document database
+Partitioning / Sharding
+group=17</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>700</x>
+      <y>322</y>
+      <w>56</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=()-
+
+group=12</panel_attributes>
+    <additional_attributes>10.0;20.0;60.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>525</x>
+      <y>357</y>
+      <w>77</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=)-
+group=14
+</panel_attributes>
+    <additional_attributes>80.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1162</x>
+      <y>322</y>
+      <w>56</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=()-
+
+group=13</panel_attributes>
+    <additional_attributes>10.0;20.0;60.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>896</x>
+      <y>322</y>
+      <w>119</w>
+      <h>35</h>
+    </coordinates>
+    <panel_attributes>lt=)-
+group=12</panel_attributes>
+    <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>553</x>
+      <y>329</y>
+      <w>154</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;
+m2=&lt;&lt;invoke Service REST API&gt;&gt;</panel_attributes>
+    <additional_attributes>60.0;60.0;200.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>777</x>
+      <y>455</y>
+      <w>21</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=()-
+group=15</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>952</x>
+      <y>455</y>
+      <w>21</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=()-
+group=16</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1120</x>
+      <y>455</y>
+      <w>21</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=()-
+group=17</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>896</x>
+      <y>364</y>
+      <w>84</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>lt=)-</panel_attributes>
+    <additional_attributes>90.0;120.0;90.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>714</x>
+      <y>259</y>
+      <w>77</w>
+      <h>224</h>
+    </coordinates>
+    <panel_attributes>lt=)-</panel_attributes>
+    <additional_attributes>80.0;290.0;10.0;290.0;10.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1288</x>
+      <y>455</y>
+      <w>21</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>lt=()-
+group=18</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1218</x>
+      <y>490</y>
+      <w>147</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;custer&gt;&gt; InfluxDB
+-
+Timeline database
+group=18</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1141</x>
+      <y>224</y>
+      <w>161</w>
+      <h>259</h>
+    </coordinates>
+    <panel_attributes>lt=)-</panel_attributes>
+    <additional_attributes>200.0;340.0;10.0;340.0;10.0;10.0;90.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1113</x>
+      <y>343</y>
+      <w>182</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>lt=)-</panel_attributes>
+    <additional_attributes>20.0;150.0;20.0;10.0;240.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1001</x>
+      <y>329</y>
+      <w>168</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+m2=&lt;&lt;invoke Service REST API&gt;&gt;</panel_attributes>
+    <additional_attributes>220.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>525</x>
+      <y>392</y>
+      <w>441</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>lt=)-</panel_attributes>
+    <additional_attributes>600.0;100.0;570.0;100.0;570.0;10.0;70.0;10.0;70.0;120.0;10.0;120.0</additional_attributes>
+  </element>
+</diagram>
