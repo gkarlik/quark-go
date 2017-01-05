@@ -10,8 +10,8 @@ import (
 type gRPCServer struct {
 }
 
-// NewGRPCServer creates instance of RPC server which is based on gRPC library
-func NewGRPCServer() *gRPCServer {
+// NewServer creates instance of RPC server which is based on gRPC library
+func NewServer() *gRPCServer {
 	return &gRPCServer{}
 }
 
@@ -36,7 +36,9 @@ func (rpc *gRPCServer) StartRPCService(s quark.RPCService) {
 	s.Log().Info("Registering gRPC server")
 
 	srv := grpc.NewServer()
-	s.RegisterServiceInstance(srv, s)
+	if err := s.RegisterServiceInstance(srv, s); err != nil {
+		s.Log().PanicWithFields(logging.LogFields{"error": err}, "Cannot register service instance in RPC server")
+	}
 
 	s.Log().InfoWithFields(logging.LogFields{"address": addr}, "Listening incomming connections")
 	if err := srv.Serve(l); err != nil {

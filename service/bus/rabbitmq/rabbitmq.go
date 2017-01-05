@@ -12,16 +12,16 @@ type messageBus struct {
 	connection *amqp.Connection
 }
 
-// NewRabbitMQBus creates instance of RabbotMQ Message Bus which is connected to specified address
-func NewRabbitMQBus(address string) *messageBus {
-	log.WithField("address", address).Info("Connecting to AMQP broker")
+// NewMessageBus creates instance of RabbotMQ Message Bus which is connected to specified address
+func NewMessageBus(address string) *messageBus {
+	log.WithField("address", address).Info("Connecting to RabbitMQ")
 
 	conn, err := amqp.Dial(address)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":   err,
 			"address": address,
-		}).Error("Cannot connect to AMQP broker")
+		}).Error("Cannot connect to RabbitMQ")
 	}
 	return &messageBus{connection: conn}
 }
@@ -31,9 +31,9 @@ func (b messageBus) PublishMessage(m bus.Message) error {
 	log.WithField("message", m).Info("Publishing message")
 
 	if b.connection == nil {
-		log.Error("Not connected to AMQP broker")
+		log.Error("Not connected to RabbitMQ")
 
-		return errors.New("Not connected to AMQP broker. Please check logs and network connection")
+		return errors.New("Not connected to RabbitMQ. Please check logs and network connection")
 	}
 
 	if m.Key == "" {

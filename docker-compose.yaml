@@ -1,0 +1,17 @@
+version: '2'
+
+services:    
+    service:
+        build:
+            context: .
+            dockerfile: Dockerfile-service
+        depends_on:
+            - consul
+            - amqp
+
+    consul:
+        image: consul
+    
+    amqp:
+        image: rabbitmq:3.6.5-management
+    

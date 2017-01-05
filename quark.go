@@ -35,7 +35,6 @@ type RPCService interface {
 // ServiceBase is base structure for custom service
 type ServiceBase struct {
 	options Options
-	info    service.Info
 }
 
 // NewService creates instance of service
@@ -55,7 +54,7 @@ func NewService(opts ...Option) *ServiceBase {
 
 // Info gets service information metadata
 func (sb ServiceBase) Info() service.Info {
-	return sb.info
+	return sb.options.Info
 }
 
 // Metrics gets service metrics reporter

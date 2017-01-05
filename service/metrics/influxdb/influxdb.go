@@ -39,12 +39,14 @@ func Password(password string) Option {
 	}
 }
 
-// NewInfluxdbMetricsReporter creates instance of metrics reported based on influxdb
-func NewInfluxdbMetricsReporter(address string, opts ...Option) *influxdbMetricsReporter {
+// NewMetricsReporter creates instance of metrics reported based on influxdb
+func NewMetricsReporter(address string, opts ...Option) *influxdbMetricsReporter {
 	options := new(Options)
 	for _, o := range opts {
 		o(options)
 	}
+
+	log.WithField("address", address).Info("Connecting to InfluxDB")
 
 	c, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     address,
@@ -58,7 +60,7 @@ func NewInfluxdbMetricsReporter(address string, opts ...Option) *influxdbMetrics
 			"username": options.Username,
 			"password": options.Password,
 			"database": options.Database,
-		}).Fatal("Cannot connect to influxdb")
+		}).Error("Cannot connect to InfluxDB")
 	}
 
 	return &influxdbMetricsReporter{

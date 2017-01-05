@@ -8,8 +8,8 @@ import (
 type logrusLogger struct {
 }
 
-// NewLogrusLogger creates logger based on logrus library
-func NewLogrusLogger() *logrusLogger {
+// NewLogger creates logger based on logrus library
+func NewLogger() *logrusLogger {
 	return &logrusLogger{}
 }
 
