@@ -1,0 +1,67 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "h5Q1o+kA7VMAR5QpBzVJZbBEgC0=",
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "881bee4e20a5d11a6a88a5667c6f292072ac1963",
+			"revisionTime": "2016-12-02T02:35:07Z"
+		},
+		{
+			"checksumSHA1": "FXiaccMs+1NvIHh8W44lQJeGqms=",
+			"path": "github.com/hashicorp/consul/api",
+			"revision": "19921290c445db1c3526f6e2f066fcfe38445ea7",
+			"revisionTime": "2017-01-05T15:28:12Z"
+		},
+		{
+			"checksumSHA1": "Uzyon2091lmwacNsl1hCytjhHtg=",
+			"path": "github.com/hashicorp/go-cleanhttp",
+			"revision": "ad28ea4487f05916463e2423a55166280e8254b5",
+			"revisionTime": "2016-04-07T17:41:26Z"
+		},
+		{
+			"checksumSHA1": "E3Xcanc9ouQwL+CZGOUyA/+giLg=",
+			"path": "github.com/hashicorp/serf/coordinate",
+			"revision": "d3a67ab21bc8a4643fa53a3633f2d951dd50c6ca",
+			"revisionTime": "2016-12-07T01:17:43Z"
+		},
+		{
+			"checksumSHA1": "I8skxAF6SIe7E1JN7TvTkr5i7fI=",
+			"path": "github.com/influxdata/influxdb/client/v2",
+			"revision": "390a16925d8bce2955ef7a27bc423762566cd931",
+			"revisionTime": "2017-01-04T22:11:51Z"
+		},
+		{
+			"checksumSHA1": "9KEIBYNgzzexoDtv1uKWMF0FAmc=",
+			"path": "github.com/influxdata/influxdb/models",
+			"revision": "390a16925d8bce2955ef7a27bc423762566cd931",
+			"revisionTime": "2017-01-04T22:11:51Z"
+		},
+		{
+			"checksumSHA1": "H/J/qLqzUONXIecHHKtVZmxJZZA=",
+			"path": "github.com/influxdata/influxdb/pkg/escape",
+			"revision": "390a16925d8bce2955ef7a27bc423762566cd931",
+			"revisionTime": "2017-01-04T22:11:51Z"
+		},
+		{
+			"checksumSHA1": "qik08F9+tO3aD/VsiPY19IbmT7k=",
+			"path": "github.com/streadway/amqp",
+			"revision": "63795daa9a446c920826655f26ba31c81c860fd6",
+			"revisionTime": "2016-12-24T08:20:40Z"
+		},
+		{
+			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
+			"path": "golang.org/x/net/context",
+			"revision": "69d4b8aa71caaaa75c3dfc11211d1be495abec7c",
+			"revisionTime": "2017-01-02T20:58:43Z"
+		},
+		{
+			"checksumSHA1": "uTQtOqR0ePMMcvuvAIksiIZxhqU=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "d75a52659825e75fff6158388dddc6a5b04f9ba5",
+			"revisionTime": "2016-12-14T18:38:57Z"
+		}
+	],
+	"rootPath": "carlos/quark"
+}
