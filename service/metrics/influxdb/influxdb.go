@@ -1,8 +1,8 @@
 package influxdb
 
 import (
-	"carlos/quark/service/metrics"
 	log "github.com/Sirupsen/logrus"
+	"github.com/gkarlik/quark/service/metrics"
 	"github.com/influxdata/influxdb/client/v2"
 	"time"
 )

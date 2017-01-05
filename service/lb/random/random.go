@@ -1,8 +1,8 @@
 package random
 
 import (
-	"carlos/quark/service"
 	"errors"
+	"github.com/gkarlik/quark/service"
 	"math/rand"
 	"time"
 )

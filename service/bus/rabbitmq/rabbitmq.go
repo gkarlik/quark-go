@@ -1,10 +1,10 @@
 package rabbitmq
 
 import (
-	"carlos/quark/service/bus"
 	"encoding/json"
 	"errors"
 	log "github.com/Sirupsen/logrus"
+	"github.com/gkarlik/quark/service/bus"
 	"github.com/streadway/amqp"
 )
 

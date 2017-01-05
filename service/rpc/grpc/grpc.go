@@ -1,8 +1,8 @@
 package grpc
 
 import (
-	"carlos/quark"
-	logging "carlos/quark/service/log"
+	"github.com/gkarlik/quark"
+	logging "github.com/gkarlik/quark/service/log"
 	"google.golang.org/grpc"
 	"net"
 )

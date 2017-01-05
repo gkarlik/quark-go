@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"carlos/quark/service"
+	"github.com/gkarlik/quark/service"
 	"time"
 )
 

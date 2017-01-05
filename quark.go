@@ -1,13 +1,13 @@
 package quark
 
 import (
-	"carlos/quark/service"
-	"carlos/quark/service/bus"
-	"carlos/quark/service/discovery"
-	"carlos/quark/service/log"
-	"carlos/quark/service/metrics"
 	"errors"
 	"fmt"
+	"github.com/gkarlik/quark/service"
+	"github.com/gkarlik/quark/service/bus"
+	"github.com/gkarlik/quark/service/discovery"
+	"github.com/gkarlik/quark/service/log"
+	"github.com/gkarlik/quark/service/metrics"
 	"net"
 )
 

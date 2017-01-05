@@ -1,7 +1,7 @@
 package rpc
 
 import (
-	"carlos/quark"
+	"github.com/gkarlik/quark"
 )
 
 // RPC represents Remote Procedure Call mechanism

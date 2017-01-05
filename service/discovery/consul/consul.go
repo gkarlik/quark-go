@@ -1,9 +1,9 @@
 package consul
 
 import (
-	"carlos/quark/service"
-	"carlos/quark/service/discovery"
 	log "github.com/Sirupsen/logrus"
+	"github.com/gkarlik/quark/service"
+	"github.com/gkarlik/quark/service/discovery"
 	"github.com/hashicorp/consul/api"
 )
 

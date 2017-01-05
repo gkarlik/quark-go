@@ -1,8 +1,8 @@
 package logrus
 
 import (
-	logging "carlos/quark/service/log"
 	log "github.com/Sirupsen/logrus"
+	logging "github.com/gkarlik/quark/service/log"
 )
 
 type logrusLogger struct {

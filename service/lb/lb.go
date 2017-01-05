@@ -1,7 +1,7 @@
 package lb
 
 import (
-	"carlos/quark/service"
+	"github.com/gkarlik/quark/service"
 )
 
 // LoadBalancingStrategy represents Load Balancing mechanism

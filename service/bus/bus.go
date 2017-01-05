@@ -1,7 +1,7 @@
 package bus
 
 import (
-	"carlos/quark/service"
+	"github.com/gkarlik/quark/service"
 )
 
 // Message represents structure which will be passed to message bus

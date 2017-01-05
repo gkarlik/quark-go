@@ -1,8 +1,8 @@
 package discovery
 
 import (
-	"carlos/quark/service"
-	"carlos/quark/service/lb"
+	"github.com/gkarlik/quark/service"
+	"github.com/gkarlik/quark/service/lb"
 )
 
 // Option represents function which is used to set service discovery options

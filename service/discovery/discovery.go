@@ -1,7 +1,7 @@
 package discovery
 
 import (
-	"carlos/quark/service"
+	"github.com/gkarlik/quark/service"
 )
 
 // ServiceDiscovery represents service registration and localization mechanism
