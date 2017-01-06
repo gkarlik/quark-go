@@ -9,9 +9,21 @@ services:
             - consul
             - rabbitmq
 
+    gateway:
+        build:
+            context: .
+            dockerfile: Dockerfile-gateway
+        depends_on:
+            - service
+            - consul
+            - rabbitmq
+
     consul:
         image: consul
     
     rabbitmq:
         image: rabbitmq:3.6.5-management
+
+    influxdb:
+        image: influxdb
     

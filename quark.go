@@ -97,6 +97,8 @@ func (sb ServiceBase) GetHostAddress() (service.Address, error) {
 
 // Dispose disposes service instance
 func (sb ServiceBase) Dispose() {
+	sb.Log().Info("Disposing service")
+
 	if sb.Broker() != nil {
 		sb.Broker().Dispose()
 	}

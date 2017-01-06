@@ -65,6 +65,7 @@ func NewMetricsReporter(address string, opts ...Option) *influxdbMetricsReporter
 			"username": options.Username,
 			"password": options.Password,
 			"database": options.Database,
+			"error":    err,
 		}).Error("Cannot create InfluxDB HTTP client")
 	}
 

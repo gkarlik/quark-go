@@ -1,10 +1,10 @@
 FROM golang
 
-LABEL service="sum"
+LABEL service="gateway"
 
-ENV SERVICE_NAME="SumService" \
+ENV SERVICE_NAME="Gateway" \
     SERVICE_VERSION="1.0" \
-    SERVICE_PORT="9999" \
+    SERVICE_PORT="8080" \
     CONSUL_ADDRESS="consul:8500" \
     RABBITMQ_ADDRESS="amqp://rabbitmq:5672" \
     INFLUXDB_ADDRESS="http://influxdb:8086" \
@@ -16,6 +16,7 @@ WORKDIR /go/src/github.com/gkarlik/quark
 
 # install dependencies
 RUN go get google.golang.org/grpc
+RUN go get github.com/gorilla/mux
 
 # install govendor
 RUN go get -u github.com/kardianos/govendor
@@ -23,13 +24,13 @@ RUN go get -u github.com/kardianos/govendor
 # synchronize dependencies
 RUN govendor sync
 
-WORKDIR /go/src/github.com/gkarlik/quark/examples/complete/service
+WORKDIR /go/src/github.com/gkarlik/quark/examples/complete/gateway
 
 # build sum service
-RUN go build -o /go/bin/sum_service main.go
+RUN go build -o /go/bin/gateway main.go
 
 WORKDIR /go/bin
 
-ENTRYPOINT sum_service
+ENTRYPOINT gateway
 
-EXPOSE 9999:9999
+EXPOSE 8080:8080

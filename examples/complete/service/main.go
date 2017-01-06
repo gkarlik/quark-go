@@ -27,6 +27,7 @@ func NewSumService() *SumService {
 		ServiceBase: quark.NewService(
 			quark.Name(os.Getenv("SERVICE_NAME")),
 			quark.Version(os.Getenv("SERVICE_VERSION")),
+			quark.Tags("A"),
 			quark.Port(port),
 			quark.Logger(logrus.NewLogger()),
 			quark.Discovery(consul.NewServiceDiscovery(os.Getenv("CONSUL_ADDRESS"))),
@@ -77,6 +78,23 @@ func main() {
 	if err := s.Discovery().RegisterService(discovery.WithInfo(s.Info()), discovery.WithAddress(addr)); err != nil {
 		s.Log().FatalWithFields(log.LogFields{"error": err}, "Cannot register service")
 	}
+
+	msgs, err := s.Broker().Subscribe("test")
+	if err != nil {
+		s.Log().ErrorWithFields(log.LogFields{
+			"topic": "test",
+			"error": err,
+		}, "Cannot subscribe to topic")
+	}
+
+	go func() {
+		for m := range msgs {
+			s.Log().InfoWithFields(log.LogFields{
+				"key":   m.Key,
+				"value": m.Value,
+			}, "Message arrived")
+		}
+	}()
 
 	// start gRPC server
 	server := gRPC.NewServer()
