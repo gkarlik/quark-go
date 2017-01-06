@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/gkarlik/quark"
+	"github.com/gkarlik/quark/auth/jwt"
 	"github.com/gkarlik/quark/broker"
 	"github.com/gkarlik/quark/broker/rabbitmq"
 	proxy "github.com/gkarlik/quark/examples/complete/service/definitions/proxies/sum"
 	"github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/logger/logrus"
+	"github.com/gkarlik/quark/metrics/influxdb"
+	"github.com/gkarlik/quark/ratelimiter"
 	"github.com/gkarlik/quark/service/discovery"
 	"github.com/gkarlik/quark/service/discovery/consul"
 	"github.com/gkarlik/quark/service/loadbalancer/random"
@@ -17,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 type Gateway struct {
@@ -35,7 +39,7 @@ func NewGateway() *Gateway {
 			quark.Logger(logrus.NewLogger()),
 			quark.Discovery(consul.NewServiceDiscovery(os.Getenv("CONSUL_ADDRESS"))),
 			quark.Broker(rabbitmq.NewMessageBroker(os.Getenv("RABBITMQ_ADDRESS"))),
-			//quark.Metrics(influxdb.NewMetricsReporter(os.Getenv("INFLUXDB_ADDRESS"), influxdb.Database(os.Getenv("INFLUXDB_DATABASE")))),
+			quark.Metrics(influxdb.NewMetricsReporter(os.Getenv("INFLUXDB_ADDRESS"), influxdb.Database(os.Getenv("INFLUXDB_DATABASE")))),
 		),
 	}
 }
@@ -55,7 +59,11 @@ func main() {
 	gateway.Log().InfoWithFields(logger.LogFields{
 		"address": addr,
 	}, "Listening on address")
-	http.ListenAndServe(fmt.Sprintf(":%d", gateway.Info().Port), r)
+
+	limiter := ratelimiter.NewHTTPRateLimiter(10 * time.Second)
+	auth := jwt.NewAuthenticationMiddleware()
+
+	http.ListenAndServe(fmt.Sprintf(":%d", gateway.Info().Port), auth.Handle(limiter.Handle(r)))
 }
 
 func findSumService() *grpc.ClientConn {
