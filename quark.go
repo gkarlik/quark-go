@@ -3,11 +3,12 @@ package quark
 import (
 	"errors"
 	"fmt"
+	"github.com/gkarlik/quark/broker"
+	log "github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark/metrics"
 	"github.com/gkarlik/quark/service"
-	"github.com/gkarlik/quark/service/bus"
 	"github.com/gkarlik/quark/service/discovery"
-	"github.com/gkarlik/quark/service/log"
-	"github.com/gkarlik/quark/service/metrics"
+	"github.com/gkarlik/quark/system"
 	"net"
 )
 
@@ -17,12 +18,12 @@ type Service interface {
 	Options() Options
 	Log() log.Logger
 	Discovery() discovery.ServiceDiscovery
-	Bus() bus.ServiceBus
+	Broker() broker.MessageBroker
 	Metrics() metrics.Reporter
 
 	GetHostAddress() (service.Address, error)
 
-	service.Disposer
+	system.Disposer
 }
 
 // RPCService represents service which exposes procedures that could be called remotelly
@@ -77,9 +78,9 @@ func (sb ServiceBase) Discovery() discovery.ServiceDiscovery {
 	return sb.options.Discovery
 }
 
-// Bus gets service message bus mechanism
-func (sb ServiceBase) Bus() bus.ServiceBus {
-	return sb.options.Bus
+// Broker gets message broker mechanism
+func (sb ServiceBase) Broker() broker.MessageBroker {
+	return sb.options.Broker
 }
 
 // GetHostAddress gets address on which service is hosted
@@ -96,8 +97,8 @@ func (sb ServiceBase) GetHostAddress() (service.Address, error) {
 
 // Dispose disposes service instance
 func (sb ServiceBase) Dispose() {
-	if sb.Bus() != nil {
-		sb.Bus().Dispose()
+	if sb.Broker() != nil {
+		sb.Broker().Dispose()
 	}
 
 	if sb.Metrics() != nil {

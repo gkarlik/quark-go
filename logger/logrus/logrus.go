@@ -2,7 +2,7 @@ package logrus
 
 import (
 	log "github.com/Sirupsen/logrus"
-	logging "github.com/gkarlik/quark/service/log"
+	logging "github.com/gkarlik/quark/logger"
 )
 
 type logrusLogger struct {

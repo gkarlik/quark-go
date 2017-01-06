@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/gkarlik/quark"
+	"github.com/gkarlik/quark/broker/rabbitmq"
 	proxy "github.com/gkarlik/quark/examples/complete/service/definitions/proxies/sum"
-	"github.com/gkarlik/quark/service/bus/rabbitmq"
+	log "github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark/logger/logrus"
+	"github.com/gkarlik/quark/metrics/influxdb"
 	"github.com/gkarlik/quark/service/discovery"
 	"github.com/gkarlik/quark/service/discovery/consul"
-	"github.com/gkarlik/quark/service/log"
-	"github.com/gkarlik/quark/service/log/logrus"
-	"github.com/gkarlik/quark/service/metrics/influxdb"
 	gRPC "github.com/gkarlik/quark/service/rpc/grpc"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -30,7 +30,7 @@ func NewSumService() *SumService {
 			quark.Port(port),
 			quark.Logger(logrus.NewLogger()),
 			quark.Discovery(consul.NewServiceDiscovery(os.Getenv("CONSUL_ADDRESS"))),
-			quark.Bus(rabbitmq.NewMessageBus(os.Getenv("RABBITMQ_ADDRESS"))),
+			quark.Broker(rabbitmq.NewMessageBroker(os.Getenv("RABBITMQ_ADDRESS"))),
 			quark.Metrics(influxdb.NewMetricsReporter(os.Getenv("INFLUXDB_ADDRESS"), influxdb.Database(os.Getenv("INFLUXDB_DATABASE")))),
 		),
 	}

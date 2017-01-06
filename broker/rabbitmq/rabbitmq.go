@@ -4,30 +4,35 @@ import (
 	"encoding/json"
 	"errors"
 	log "github.com/Sirupsen/logrus"
-	"github.com/gkarlik/quark/service/bus"
+	"github.com/gkarlik/quark/broker"
+	cb "github.com/gkarlik/quark/circuitbreaker"
 	"github.com/streadway/amqp"
 )
 
-type messageBus struct {
+type messageBroker struct {
 	connection *amqp.Connection
 }
 
-// NewMessageBus creates instance of RabbotMQ Message Bus which is connected to specified address
-func NewMessageBus(address string) *messageBus {
-	log.WithField("address", address).Info("Connecting to RabbitMQ")
+// NewMessageBroker creates instance of RabbitMQ message broker which is connected to specified address
+func NewMessageBroker(address string, opts ...cb.Option) *messageBroker {
+	conn, err := new(cb.DefaultCircuitBreaker).Execute(func() (interface{}, error) {
+		log.WithField("address", address).Info("Connecting to RabbitMQ")
+		return amqp.Dial(address)
+	}, opts...)
 
-	conn, err := amqp.Dial(address)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":   err,
 			"address": address,
-		}).Error("Cannot connect to RabbitMQ")
+		}).Fatal("Cannot connect to RabbitMQ")
 	}
-	return &messageBus{connection: conn}
+	log.WithField("address", address).Info("Connected to RabbitMQ")
+
+	return &messageBroker{connection: conn.(*amqp.Connection)}
 }
 
 // PublishMessage publishes message to RabbitMQ Message Bus
-func (b messageBus) PublishMessage(m bus.Message) error {
+func (b messageBroker) PublishMessage(m broker.Message) error {
 	log.WithField("message", m).Info("Publishing message")
 
 	if b.connection == nil {
@@ -97,7 +102,7 @@ func (b messageBus) PublishMessage(m bus.Message) error {
 }
 
 // Subscribe subscribes to specified routing key in RabbitMQ Message Bus
-func (b messageBus) Subscribe(key string) (<-chan bus.Message, error) {
+func (b messageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	log.WithField("key", key).Info("Subscribing to messages with key")
 
 	if b.connection == nil {
@@ -154,10 +159,10 @@ func (b messageBus) Subscribe(key string) (<-chan bus.Message, error) {
 		}).Error("Cannot consume message")
 	}
 
-	mgs := make(chan bus.Message)
+	mgs := make(chan broker.Message)
 	go func() {
 		for msg := range messages {
-			mgs <- bus.Message{
+			mgs <- broker.Message{
 				Key:   q.Name,
 				Value: msg.Body,
 			}
@@ -167,8 +172,8 @@ func (b messageBus) Subscribe(key string) (<-chan bus.Message, error) {
 	return mgs, nil
 }
 
-// Close closes RabbitMQ Message Bus
-func (b messageBus) Dispose() {
+// Dispose closes RabbitMQ Message Bus
+func (b messageBroker) Dispose() {
 	if b.connection != nil {
 		b.connection.Close()
 	}

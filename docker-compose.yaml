@@ -7,11 +7,11 @@ services:
             dockerfile: Dockerfile-service
         depends_on:
             - consul
-            - amqp
+            - rabbitmq
 
     consul:
         image: consul
     
-    amqp:
+    rabbitmq:
         image: rabbitmq:3.6.5-management
     

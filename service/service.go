@@ -1,10 +1,5 @@
 package service
 
-// Disposer reporesents object cleanup mechanism
-type Disposer interface {
-	Dispose()
-}
-
 // Info represents information about service
 type Info struct {
 	Name    string

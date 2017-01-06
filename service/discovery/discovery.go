@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"github.com/gkarlik/quark/service"
+	"github.com/gkarlik/quark/system"
 )
 
 // ServiceDiscovery represents service registration and localization mechanism
@@ -10,5 +11,5 @@ type ServiceDiscovery interface {
 	DeregisterService(options ...Option) error
 	GetServiceAddress(options ...Option) (service.Address, error)
 
-	service.Disposer
+	system.Disposer
 }

@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"github.com/gkarlik/quark"
-	logging "github.com/gkarlik/quark/service/log"
+	logging "github.com/gkarlik/quark/logger"
 	"google.golang.org/grpc"
 	"net"
 )

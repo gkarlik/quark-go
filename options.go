@@ -1,11 +1,11 @@
 package quark
 
 import (
+	"github.com/gkarlik/quark/broker"
+	log "github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark/metrics"
 	"github.com/gkarlik/quark/service"
-	"github.com/gkarlik/quark/service/bus"
 	"github.com/gkarlik/quark/service/discovery"
-	"github.com/gkarlik/quark/service/log"
-	"github.com/gkarlik/quark/service/metrics"
 	"golang.org/x/net/context"
 )
 
@@ -17,7 +17,7 @@ type Options struct {
 	Info      service.Info
 	Logger    log.Logger
 	Discovery discovery.ServiceDiscovery
-	Bus       bus.ServiceBus
+	Broker    broker.MessageBroker
 	Metrics   metrics.Reporter
 
 	Context context.Context
@@ -65,10 +65,10 @@ func Discovery(d discovery.ServiceDiscovery) Option {
 	}
 }
 
-// Bus allows to set service message bus mechanism
-func Bus(b bus.ServiceBus) Option {
+// Broker allows to set message broker
+func Broker(b broker.MessageBroker) Option {
 	return func(o *Options) {
-		o.Bus = b
+		o.Broker = b
 	}
 }
 

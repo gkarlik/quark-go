@@ -1,4 +1,4 @@
-package log
+package logger
 
 // LogFields represents map between parameter name and value
 type LogFields map[string]interface{}

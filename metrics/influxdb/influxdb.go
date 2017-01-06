@@ -2,7 +2,7 @@ package influxdb
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/gkarlik/quark/service/metrics"
+	"github.com/gkarlik/quark/metrics"
 	"github.com/influxdata/influxdb/client/v2"
 	"time"
 )
@@ -12,8 +12,10 @@ type influxdbMetricsReporter struct {
 	Options Options
 }
 
+// Option represents function which is used to set metrics reporter options
 type Option func(*Options)
 
+// Options represents cofiguration options for metrics reporter
 type Options struct {
 	Address  string
 	Username string
@@ -21,18 +23,21 @@ type Options struct {
 	Database string
 }
 
+// Database allows to set database name
 func Database(database string) Option {
 	return func(o *Options) {
 		o.Database = database
 	}
 }
 
+// Username allows to set database user name
 func Username(username string) Option {
 	return func(o *Options) {
 		o.Username = username
 	}
 }
 
+// Password allows to set database password
 func Password(password string) Option {
 	return func(o *Options) {
 		o.Password = password
@@ -46,7 +51,7 @@ func NewMetricsReporter(address string, opts ...Option) *influxdbMetricsReporter
 		o(options)
 	}
 
-	log.WithField("address", address).Info("Connecting to InfluxDB")
+	log.WithField("address", address).Info("Creating InfluxDB HTTP client")
 
 	c, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     address,
@@ -60,7 +65,7 @@ func NewMetricsReporter(address string, opts ...Option) *influxdbMetricsReporter
 			"username": options.Username,
 			"password": options.Password,
 			"database": options.Database,
-		}).Error("Cannot connect to InfluxDB")
+		}).Error("Cannot create InfluxDB HTTP client")
 	}
 
 	return &influxdbMetricsReporter{
