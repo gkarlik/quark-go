@@ -6,5 +6,6 @@ import (
 
 // RPC represents Remote Procedure Call mechanism
 type RPC interface {
-	StartRPCService(s quark.RPCService)
+	Start(s quark.RPCService)
+	Stop()
 }

@@ -50,6 +50,18 @@ func NewService(opts ...Option) *ServiceBase {
 		opt(&s.options)
 	}
 
+	if s.Info().Name == "" {
+		panic("Service name option must be specified")
+	}
+
+	if s.Info().Version == "" {
+		panic("Service version option must be specified")
+	}
+
+	if s.Log() == nil {
+		panic("Service logger option must be specified")
+	}
+
 	return s
 }
 

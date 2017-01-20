@@ -5,17 +5,30 @@ import (
 	logging "github.com/gkarlik/quark/logger"
 	"google.golang.org/grpc"
 	"net"
+	"strings"
 )
 
-type gRPCServer struct {
+// Server represents RPC server based on gRPC library
+type Server struct {
+	server *grpc.Server
 }
 
 // NewServer creates instance of RPC server which is based on gRPC library
-func NewServer() *gRPCServer {
-	return &gRPCServer{}
+func NewServer() *Server {
+	return &Server{
+		server: grpc.NewServer(),
+	}
 }
 
-func (rpc *gRPCServer) StartRPCService(s quark.RPCService) {
+// Stop gracefully stops RPC server
+func (rpc *Server) Stop() {
+	if rpc.server != nil {
+		rpc.server.Stop()
+	}
+}
+
+// Start registers and starts service in RPC server
+func (rpc *Server) Start(s quark.RPCService) {
 	url, err := s.GetHostAddress()
 	if err != nil {
 		s.Log().PanicWithFields(logging.LogFields{
@@ -35,15 +48,13 @@ func (rpc *gRPCServer) StartRPCService(s quark.RPCService) {
 
 	s.Log().Info("Registering gRPC server")
 
-	srv := grpc.NewServer()
-	if err := s.RegisterServiceInstance(srv, s); err != nil {
+	if err := s.RegisterServiceInstance(rpc.server, s); err != nil {
 		s.Log().PanicWithFields(logging.LogFields{"error": err}, "Cannot register service instance in RPC server")
 	}
 
 	s.Log().InfoWithFields(logging.LogFields{"address": addr}, "Listening incomming connections")
-	if err := srv.Serve(l); err != nil {
-		s.Log().PanicWithFields(logging.LogFields{
-			"error": err,
-		}, "Failed to serve clients")
+	// workaround for issue in gRPC library
+	if err := rpc.server.Serve(l); !strings.Contains(err.Error(), "use of closed network connection") {
+		s.Log().PanicWithFields(logging.LogFields{"error": err}, "Failed to serve clients")
 	}
 }

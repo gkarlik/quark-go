@@ -7,21 +7,26 @@ import (
 	"time"
 )
 
-type loadBalancingStrategy struct {
+// LoadBalancingStrategy represents Random Load Balancing mechanism
+type LoadBalancingStrategy struct {
+	Randomizer *rand.Rand
 }
 
 // NewRandomLBStrategy creates random load balancing mechanism
-func NewRandomLBStrategy() *loadBalancingStrategy {
-	return &loadBalancingStrategy{}
+func NewRandomLBStrategy() *LoadBalancingStrategy {
+	return &LoadBalancingStrategy{
+		Randomizer: rand.New(rand.NewSource(time.Now().UnixNano())),
+	}
 }
 
-func (s loadBalancingStrategy) PickServiceAddress(sa []service.Address) (service.Address, error) {
-	if len(sa) == 0 {
+// PickServiceAddress randomly picks service address from list of adresses
+func (s LoadBalancingStrategy) PickServiceAddress(sa []service.Address) (service.Address, error) {
+	l := len(sa)
+	if l == 0 {
 		return nil, errors.New("Registration list is empty")
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	i := rand.Intn(len(sa))
+	i := s.Randomizer.Intn(l)
 
 	return sa[i], nil
 }
