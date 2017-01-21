@@ -7,13 +7,14 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-type serviceDiscovery struct {
+// ServiceDiscovery represents service discovery mechanism based on Consul by Hashicorp
+type ServiceDiscovery struct {
 	Address string
 	Client  *api.Client
 }
 
 // NewServiceDiscovery creates service registration and localization based on Consul by Hashicorp
-func NewServiceDiscovery(address string) *serviceDiscovery {
+func NewServiceDiscovery(address string) *ServiceDiscovery {
 	c, err := api.NewClient(&api.Config{
 		Address: address,
 	})
@@ -25,13 +26,14 @@ func NewServiceDiscovery(address string) *serviceDiscovery {
 		}).Error("Cannot connect to Consul service")
 	}
 
-	return &serviceDiscovery{
+	return &ServiceDiscovery{
 		Address: address,
 		Client:  c,
 	}
 }
 
-func (c serviceDiscovery) RegisterService(options ...discovery.Option) error {
+// RegisterService registers service in service discovery catalog
+func (c ServiceDiscovery) RegisterService(options ...discovery.Option) error {
 	opts := new(discovery.Options)
 	for _, o := range options {
 		o(opts)
@@ -46,7 +48,8 @@ func (c serviceDiscovery) RegisterService(options ...discovery.Option) error {
 	})
 }
 
-func (c serviceDiscovery) DeregisterService(options ...discovery.Option) error {
+// DeregisterService unregisters service in service discovery catalog
+func (c ServiceDiscovery) DeregisterService(options ...discovery.Option) error {
 	opts := new(discovery.Options)
 	for _, o := range options {
 		o(opts)
@@ -55,7 +58,8 @@ func (c serviceDiscovery) DeregisterService(options ...discovery.Option) error {
 	return c.Client.Agent().ServiceDeregister(opts.Info.Name)
 }
 
-func (c serviceDiscovery) GetServiceAddress(options ...discovery.Option) (service.Address, error) {
+// GetServiceAddress gets service address from service discovery catalog
+func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (service.Address, error) {
 	opts := new(discovery.Options)
 	for _, o := range options {
 		o(opts)
@@ -83,7 +87,8 @@ func (c serviceDiscovery) GetServiceAddress(options ...discovery.Option) (servic
 	return opts.Strategy.PickServiceAddress(srvs)
 }
 
-func (c serviceDiscovery) Dispose() {
+// Dispose cleans up ServiceDiscovery instance
+func (c ServiceDiscovery) Dispose() {
 	if c.Client != nil {
 		c.Client = nil
 	}
