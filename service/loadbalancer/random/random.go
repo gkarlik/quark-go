@@ -2,8 +2,8 @@ package random
 
 import (
 	"errors"
-	"github.com/gkarlik/quark/service"
 	"math/rand"
+	"net/url"
 	"time"
 )
 
@@ -20,7 +20,7 @@ func NewRandomLBStrategy() *LoadBalancingStrategy {
 }
 
 // PickServiceAddress randomly picks service address from list of adresses
-func (s LoadBalancingStrategy) PickServiceAddress(sa []service.Address) (service.Address, error) {
+func (s LoadBalancingStrategy) PickServiceAddress(sa []*url.URL) (*url.URL, error) {
 	l := len(sa)
 	if l == 0 {
 		return nil, errors.New("Registration list is empty")

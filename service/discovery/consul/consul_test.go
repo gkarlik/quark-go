@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -54,13 +55,15 @@ func TestNewServiceDiscovery(t *testing.T) {
 }
 
 func TestRegisterService(t *testing.T) {
+	addr := "http://server/service"
+	url, _ := url.Parse(addr)
+
 	info := service.Info{
 		Name:    "ServiceName",
-		Port:    1234,
+		Address: url,
 		Tags:    []string{"A", "B"},
 		Version: "1.0",
 	}
-	addr := "http://server/service"
 
 	m := &HttpTransportMock{}
 	m.Response = prepareResponse(http.StatusOK, "OK")
@@ -68,7 +71,7 @@ func TestRegisterService(t *testing.T) {
 	c := NewConsulClient(m)
 	err := c.RegisterService(
 		discovery.WithInfo(info),
-		discovery.WithAddress(service.NewURIServiceAddress(addr)))
+		discovery.WithAddress(url))
 
 	assert.NoError(t, err, "RegisterService returns an error")
 
@@ -78,7 +81,7 @@ func TestRegisterService(t *testing.T) {
 
 	assert.Equal(t, addr, sr.Address)
 	assert.Equal(t, info.Name, sr.ID)
-	assert.Equal(t, info.Port, sr.Port)
+	assert.Equal(t, info.Address.String(), sr.Address)
 	assert.Equal(t, info.Name, sr.Name)
 	assert.Equal(t, info.Tags, sr.Tags)
 }

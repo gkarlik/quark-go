@@ -8,8 +8,10 @@ import (
 	"github.com/gkarlik/quark/metrics"
 	"github.com/gkarlik/quark/service"
 	"github.com/gkarlik/quark/service/discovery"
+	"github.com/gkarlik/quark/service/trace"
 	"github.com/gkarlik/quark/system"
 	"net"
+	"net/url"
 )
 
 // Service represents service instance
@@ -20,8 +22,6 @@ type Service interface {
 	Discovery() discovery.ServiceDiscovery
 	Broker() broker.MessageBroker
 	Metrics() metrics.Reporter
-
-	GetHostAddress() (service.Address, error)
 
 	system.Disposer
 }
@@ -62,6 +62,10 @@ func NewService(opts ...Option) *ServiceBase {
 		panic("Service logger option must be specified")
 	}
 
+	if s.Info().Address == nil {
+		panic("Service address option must be specified")
+	}
+
 	return s
 }
 
@@ -73,6 +77,11 @@ func (sb ServiceBase) Info() service.Info {
 // Metrics gets service metrics reporter
 func (sb ServiceBase) Metrics() metrics.Reporter {
 	return sb.options.Metrics
+}
+
+// Tracer gets service tracer
+func (sb ServiceBase) Tracer() trace.Tracer {
+	return sb.options.Tracer
 }
 
 // Options gets service options
@@ -95,18 +104,6 @@ func (sb ServiceBase) Broker() broker.MessageBroker {
 	return sb.options.Broker
 }
 
-// GetHostAddress gets address on which service is hosted
-func (sb ServiceBase) GetHostAddress() (service.Address, error) {
-	ip, err := sb.getLocalIPAddress()
-	if err != nil {
-		return nil, err
-	}
-
-	url := fmt.Sprintf("%s:%d", ip, sb.Options().Info.Port)
-
-	return service.NewURIServiceAddress(url), nil
-}
-
 // Dispose disposes service instance
 func (sb ServiceBase) Dispose() {
 	sb.Log().Info("Disposing service")
@@ -124,7 +121,22 @@ func (sb ServiceBase) Dispose() {
 	}
 }
 
-func (sb ServiceBase) getLocalIPAddress() (string, error) {
+// GetHostAddress return host and port address on which service is hosted
+func GetHostAddress(port int) (*url.URL, error) {
+	ip, err := getLocalIPAddress()
+	if err != nil {
+		return nil, err
+	}
+
+	u := fmt.Sprintf("%s:%d", ip, port)
+	if port == 0 {
+		u = fmt.Sprintf(ip)
+	}
+
+	return url.Parse(u)
+}
+
+func getLocalIPAddress() (string, error) {
 	ifaces, error := net.Interfaces()
 	if error != nil {
 		return "", error

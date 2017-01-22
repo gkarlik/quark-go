@@ -1,10 +1,10 @@
 package loadbalancer
 
 import (
-	"github.com/gkarlik/quark/service"
+	"net/url"
 )
 
 // LoadBalancingStrategy represents Load Balancing mechanism
 type LoadBalancingStrategy interface {
-	PickServiceAddress(sa []service.Address) (service.Address, error)
+	PickServiceAddress(sa []*url.URL) (*url.URL, error)
 }

@@ -1,10 +1,10 @@
 package random_test
 
 import (
-	"github.com/gkarlik/quark/service"
 	"github.com/gkarlik/quark/service/loadbalancer/random"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"net/url"
 	"testing"
 )
 
@@ -17,25 +17,25 @@ func TestNewRandomLoadBalancer(t *testing.T) {
 }
 
 func TestRandomLoadBalancer(t *testing.T) {
-	addr1 := service.NewURIServiceAddress("uri 1")
-	addr2 := service.NewURIServiceAddress("uri 2")
-	addr3 := service.NewURIServiceAddress("uri 3")
-	addr4 := service.NewURIServiceAddress("uri 4")
+	addr1, _ := url.Parse("http://server/url1")
+	addr2, _ := url.Parse("http://server/url2")
+	addr3, _ := url.Parse("http://server/url3")
+	addr4, _ := url.Parse("http://server/url4")
 
 	var cases = []struct {
-		in   []service.Address
-		want service.Address
+		in   []*url.URL
+		want *url.URL
 	}{
 		{nil, nil},
-		{[]service.Address{}, nil},
-		{[]service.Address{addr1}, addr1},
-		{[]service.Address{addr1, addr2, addr3, addr4}, addr4},
-		{[]service.Address{addr1, addr2, addr3, addr4}, addr3},
-		{[]service.Address{addr1, addr2, addr3, addr4}, addr3},
-		{[]service.Address{addr1, addr2, addr3, addr4}, addr3},
-		{[]service.Address{addr1, addr2, addr3, addr4}, addr4},
-		{[]service.Address{addr1, addr2, addr3, addr4}, addr2},
-		{[]service.Address{addr1, addr2, addr3, addr4}, addr1},
+		{[]*url.URL{}, nil},
+		{[]*url.URL{addr1}, addr1},
+		{[]*url.URL{addr1, addr2, addr3, addr4}, addr4},
+		{[]*url.URL{addr1, addr2, addr3, addr4}, addr3},
+		{[]*url.URL{addr1, addr2, addr3, addr4}, addr3},
+		{[]*url.URL{addr1, addr2, addr3, addr4}, addr3},
+		{[]*url.URL{addr1, addr2, addr3, addr4}, addr4},
+		{[]*url.URL{addr1, addr2, addr3, addr4}, addr2},
+		{[]*url.URL{addr1, addr2, addr3, addr4}, addr1},
 	}
 
 	lb := &random.LoadBalancingStrategy{

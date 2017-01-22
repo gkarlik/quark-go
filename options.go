@@ -6,7 +6,9 @@ import (
 	"github.com/gkarlik/quark/metrics"
 	"github.com/gkarlik/quark/service"
 	"github.com/gkarlik/quark/service/discovery"
+	"github.com/gkarlik/quark/service/trace"
 	"golang.org/x/net/context"
+	"net/url"
 )
 
 // Option represents function which is used to set service options
@@ -19,6 +21,7 @@ type Options struct {
 	Discovery discovery.ServiceDiscovery
 	Broker    broker.MessageBroker
 	Metrics   metrics.Reporter
+	Tracer    trace.Tracer
 
 	Context context.Context
 }
@@ -44,10 +47,10 @@ func Tags(tags ...string) Option {
 	}
 }
 
-// Port allows to set service port
-func Port(port int) Option {
+// Address allows to set service address
+func Address(url *url.URL) Option {
 	return func(o *Options) {
-		o.Info.Port = port
+		o.Info.Address = url
 	}
 }
 
@@ -69,6 +72,13 @@ func Discovery(d discovery.ServiceDiscovery) Option {
 func Broker(b broker.MessageBroker) Option {
 	return func(o *Options) {
 		o.Broker = b
+	}
+}
+
+// Tracer allows to set tracer
+func Tracer(t trace.Tracer) Option {
+	return func(o *Options) {
+		o.Tracer = t
 	}
 }
 

@@ -2,9 +2,11 @@ package consul
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/gkarlik/quark/service"
 	"github.com/gkarlik/quark/service/discovery"
 	"github.com/hashicorp/consul/api"
+	"net"
+	"net/url"
+	"strconv"
 )
 
 // ServiceDiscovery represents service discovery mechanism based on Consul by Hashicorp
@@ -39,11 +41,15 @@ func (c ServiceDiscovery) RegisterService(options ...discovery.Option) error {
 		o(opts)
 	}
 
+	_, port, _ := net.SplitHostPort(opts.Info.Address.Host)
+
+	p, _ := strconv.Atoi(port)
+
 	return c.Client.Agent().ServiceRegister(&api.AgentServiceRegistration{
 		ID:      opts.Info.Name,
 		Name:    opts.Info.Name,
 		Tags:    opts.Info.Tags,
-		Port:    opts.Info.Port,
+		Port:    p,
 		Address: opts.Address.String(),
 	})
 }
@@ -59,7 +65,7 @@ func (c ServiceDiscovery) DeregisterService(options ...discovery.Option) error {
 }
 
 // GetServiceAddress gets service address from service discovery catalog
-func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (service.Address, error) {
+func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.URL, error) {
 	opts := new(discovery.Options)
 	for _, o := range options {
 		o(opts)
@@ -71,9 +77,10 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (servic
 		return nil, err
 	}
 
-	srvs := make([]service.Address, 0, len(services))
+	srvs := make([]*url.URL, 0, len(services))
 	for _, s := range services {
-		srvs = append(srvs, service.NewURIServiceAddress(s.Service.Address))
+		addr, _ := url.Parse(s.Service.Address)
+		srvs = append(srvs, addr)
 	}
 
 	if len(srvs) == 0 {

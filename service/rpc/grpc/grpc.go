@@ -29,14 +29,7 @@ func (rpc *Server) Stop() {
 
 // Start registers and starts service in RPC server
 func (rpc *Server) Start(s quark.RPCService) {
-	url, err := s.GetHostAddress()
-	if err != nil {
-		s.Log().PanicWithFields(logging.LogFields{
-			"error": err,
-		}, "Cannot resolve service url")
-	}
-
-	addr := url.String()
+	addr := s.Info().Address.String()
 
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
