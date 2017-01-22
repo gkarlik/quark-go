@@ -9,12 +9,13 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type messageBroker struct {
-	connection *amqp.Connection
+// MessageBroker represents message broker based on RabbitMQ
+type MessageBroker struct {
+	Connection *amqp.Connection
 }
 
-// NewMessageBroker creates instance of RabbitMQ message broker which is connected to specified address
-func NewMessageBroker(address string, opts ...cb.Option) *messageBroker {
+// NewMessageBroker creates instance of RabbitMQ message broker which is connected to specified address. Panics if cannot create an instance
+func NewMessageBroker(address string, opts ...cb.Option) *MessageBroker {
 	conn, err := new(cb.DefaultCircuitBreaker).Execute(func() (interface{}, error) {
 		log.WithField("address", address).Info("Connecting to RabbitMQ")
 		return amqp.Dial(address)
@@ -24,18 +25,18 @@ func NewMessageBroker(address string, opts ...cb.Option) *messageBroker {
 		log.WithFields(log.Fields{
 			"error":   err,
 			"address": address,
-		}).Fatal("Cannot connect to RabbitMQ")
+		}).Panic("Cannot connect to RabbitMQ")
 	}
 	log.WithField("address", address).Info("Connected to RabbitMQ")
 
-	return &messageBroker{connection: conn.(*amqp.Connection)}
+	return &MessageBroker{Connection: conn.(*amqp.Connection)}
 }
 
 // PublishMessage publishes message to RabbitMQ Message Bus
-func (b messageBroker) PublishMessage(m broker.Message) error {
+func (b MessageBroker) PublishMessage(m broker.Message) error {
 	log.WithField("message", m).Info("Publishing message")
 
-	if b.connection == nil {
+	if b.Connection == nil {
 		log.Error("Not connected to RabbitMQ")
 
 		return errors.New("Not connected to RabbitMQ. Please check logs and network connection")
@@ -47,7 +48,7 @@ func (b messageBroker) PublishMessage(m broker.Message) error {
 		return errors.New("Message key cannot be empty")
 	}
 
-	ch, err := b.connection.Channel()
+	ch, err := b.Connection.Channel()
 	if err != nil {
 		log.Error("Cannot create channel")
 
@@ -102,10 +103,10 @@ func (b messageBroker) PublishMessage(m broker.Message) error {
 }
 
 // Subscribe subscribes to specified routing key in RabbitMQ Message Bus
-func (b messageBroker) Subscribe(key string) (<-chan broker.Message, error) {
+func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	log.WithField("key", key).Info("Subscribing to messages with key")
 
-	if b.connection == nil {
+	if b.Connection == nil {
 		log.Error("Not connected to AMQP broker")
 
 		return nil, errors.New("Not connected to AMQP broker. Please check logs and network connection")
@@ -117,7 +118,7 @@ func (b messageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 		return nil, errors.New("Key cannot be empty")
 	}
 
-	ch, err := b.connection.Channel()
+	ch, err := b.Connection.Channel()
 	if err != nil {
 		log.Error("Cannot create channel")
 
@@ -173,8 +174,8 @@ func (b messageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 }
 
 // Dispose closes RabbitMQ Message Bus
-func (b messageBroker) Dispose() {
-	if b.connection != nil {
-		b.connection.Close()
+func (b MessageBroker) Dispose() {
+	if b.Connection != nil {
+		b.Connection.Close()
 	}
 }

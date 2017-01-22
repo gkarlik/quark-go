@@ -13,7 +13,7 @@ type ServiceDiscovery struct {
 	Client  *api.Client
 }
 
-// NewServiceDiscovery creates service registration and localization based on Consul by Hashicorp
+// NewServiceDiscovery creates service registration and localization based on Consul by Hashicorp. Panics if cannot create an instance
 func NewServiceDiscovery(address string) *ServiceDiscovery {
 	c, err := api.NewClient(&api.Config{
 		Address: address,
@@ -23,7 +23,7 @@ func NewServiceDiscovery(address string) *ServiceDiscovery {
 		log.WithFields(log.Fields{
 			"error":   err,
 			"address": address,
-		}).Error("Cannot connect to Consul service")
+		}).Panic("Cannot connect to Consul service")
 	}
 
 	return &ServiceDiscovery{

@@ -1,13 +1,14 @@
 package influxdb
 
 import (
+	"errors"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gkarlik/quark/metrics"
 	"github.com/influxdata/influxdb/client/v2"
-	"time"
 )
 
-type influxdbMetricsReporter struct {
+// MetricsReporter represents kpi reporting mechanism based on InfluxDB
+type MetricsReporter struct {
 	Client  client.Client
 	Options Options
 }
@@ -44,12 +45,14 @@ func Password(password string) Option {
 	}
 }
 
-// NewMetricsReporter creates instance of metrics reported based on influxdb
-func NewMetricsReporter(address string, opts ...Option) *influxdbMetricsReporter {
+// NewMetricsReporter creates instance of metrics reported based on influxdb. Panics if cannot create an instance
+func NewMetricsReporter(address string, opts ...Option) *MetricsReporter {
 	options := new(Options)
 	for _, o := range opts {
 		o(options)
 	}
+
+	options.Address = address
 
 	log.WithField("address", address).Info("Creating InfluxDB HTTP client")
 
@@ -66,16 +69,21 @@ func NewMetricsReporter(address string, opts ...Option) *influxdbMetricsReporter
 			"password": options.Password,
 			"database": options.Database,
 			"error":    err,
-		}).Error("Cannot create InfluxDB HTTP client")
+		}).Panic("Cannot create InfluxDB HTTP client")
 	}
 
-	return &influxdbMetricsReporter{
+	return &MetricsReporter{
 		Options: *options,
 		Client:  c,
 	}
 }
 
-func (r influxdbMetricsReporter) Report(ms []metrics.Metric) error {
+// Report send metrics to InfluxDB
+func (r MetricsReporter) Report(ms []metrics.Metric) error {
+	if ms == nil || len(ms) == 0 {
+		return errors.New("Metrics array cannot be nil or empty")
+	}
+
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database: r.Options.Database,
 	})
@@ -89,7 +97,7 @@ func (r influxdbMetricsReporter) Report(ms []metrics.Metric) error {
 			m.Name,
 			m.Tags,
 			m.Values,
-			time.Now(),
+			m.Date,
 		)
 		bp.AddPoint(p)
 	}
@@ -101,7 +109,8 @@ func (r influxdbMetricsReporter) Report(ms []metrics.Metric) error {
 	return nil
 }
 
-func (r influxdbMetricsReporter) Dispose() {
+// Dispose cleans up MetricsReporter instance
+func (r MetricsReporter) Dispose() {
 	if r.Client != nil {
 		r.Client.Close()
 	}
