@@ -3,7 +3,6 @@ package discovery
 import (
 	"github.com/gkarlik/quark/service"
 	lb "github.com/gkarlik/quark/service/loadbalancer"
-	"net/url"
 )
 
 // Option represents function which is used to set service discovery options
@@ -13,7 +12,6 @@ type Option func(*Options)
 type Options struct {
 	Info     service.Info
 	Strategy lb.LoadBalancingStrategy
-	Address  *url.URL
 }
 
 // ByInfo allows to discover service by its info metadata
@@ -46,12 +44,5 @@ func ByTag(tag string) Option {
 func UsingLBStrategy(s lb.LoadBalancingStrategy) Option {
 	return func(opts *Options) {
 		opts.Strategy = s
-	}
-}
-
-// WithAddress allows to register service using specified address
-func WithAddress(url *url.URL) Option {
-	return func(opts *Options) {
-		opts.Address = url
 	}
 }

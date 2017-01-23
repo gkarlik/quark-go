@@ -50,7 +50,7 @@ func (c ServiceDiscovery) RegisterService(options ...discovery.Option) error {
 		Name:    opts.Info.Name,
 		Tags:    opts.Info.Tags,
 		Port:    p,
-		Address: opts.Address.String(),
+		Address: opts.Info.Address.String(),
 	})
 }
 
@@ -71,7 +71,11 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.U
 		o(opts)
 	}
 
-	services, _, err := c.Client.Health().Service(opts.Info.Name, opts.Info.Tags[0], true, nil)
+	tag := ""
+	if len(opts.Info.Tags) > 0 {
+		tag = opts.Info.Tags[0]
+	}
+	services, _, err := c.Client.Health().Service(opts.Info.Name, tag, true, nil)
 
 	if err != nil {
 		return nil, err

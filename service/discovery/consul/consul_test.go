@@ -69,9 +69,7 @@ func TestRegisterService(t *testing.T) {
 	m.Response = prepareResponse(http.StatusOK, "OK")
 
 	c := NewConsulClient(m)
-	err := c.RegisterService(
-		discovery.WithInfo(info),
-		discovery.WithAddress(url))
+	err := c.RegisterService(discovery.WithInfo(info))
 
 	assert.NoError(t, err, "RegisterService returns an error")
 
@@ -146,6 +144,45 @@ func TestGetServiceAddress(t *testing.T) {
 
 	p := m.Request.URL.Query()
 	assert.Equal(t, tag, p["tag"][0])
+}
+
+func TestGetServiceAddressWithoutTag(t *testing.T) {
+	name := "ServiceID"
+	addr := "http://server/service"
+
+	m := &HttpTransportMock{}
+
+	services := make([]*api.ServiceEntry, 0)
+
+	s := &api.ServiceEntry{
+		Checks: nil,
+		Node:   nil,
+		Service: &api.AgentService{
+			Address: addr,
+			ID:      name,
+			Service: name,
+			Tags:    nil,
+		},
+	}
+
+	services = append(services, s)
+	m.Response = prepareResponse(http.StatusOK, services)
+
+	c := NewConsulClient(m)
+	a, err := c.GetServiceAddress(
+		discovery.ByName(name),
+		discovery.UsingLBStrategy(random.NewRandomLBStrategy()))
+
+	assert.NoError(t, err, "RegisterService returns an error")
+	assert.Equal(t, addr, a.String())
+
+	// last segment in request url is id of the service
+	u := strings.Split(m.Request.URL.Path, "/")
+	id := u[len(u)-1]
+
+	// skip query parameters
+	u = strings.Split(id, "?")
+	assert.Equal(t, name, u[0])
 }
 
 func TestGetServiceAddressMissingLBStrategy(t *testing.T) {
