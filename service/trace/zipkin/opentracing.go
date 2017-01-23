@@ -1,6 +1,8 @@
 package zipkin
 
 import (
+	"net/url"
+
 	cb "github.com/gkarlik/quark/circuitbreaker"
 	"github.com/gkarlik/quark/service/trace"
 	"github.com/opentracing/opentracing-go"
@@ -8,39 +10,38 @@ import (
 	"github.com/opentracing/opentracing-go/log"
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"
 	"golang.org/x/net/context"
-	"net/url"
 )
 
 // Span represents tracing span based on opentracing zipkin framework
 type Span struct {
-	span opentracing.Span
+	RawSpan opentracing.Span
 }
 
 // LogWithFields logs span with event name and fields
 func (s Span) LogWithFields(event string, params map[string]interface{}) {
-	s.span.LogEvent(event)
+	s.RawSpan.LogEvent(event)
 
 	fields := []log.Field{}
 	for k, v := range params {
 		f := log.Object(k, v)
 		fields = append(fields, f)
 	}
-	s.span.LogFields(fields...)
+	s.RawSpan.LogFields(fields...)
 }
 
 // Log logs span event
 func (s Span) Log(event string) {
-	s.span.LogEvent(event)
+	s.RawSpan.LogEvent(event)
 }
 
 // SetTag sets tag on span
 func (s Span) SetTag(key string, value interface{}) {
-	s.span.SetTag(key, value)
+	s.RawSpan.SetTag(key, value)
 }
 
 // Finish stops tracing span
 func (s Span) Finish() {
-	s.Finish()
+	s.RawSpan.Finish()
 }
 
 // Tracer represents tracing mechanism based on opentracing zipkin framework
@@ -84,7 +85,7 @@ func (t Tracer) StartSpan(name string) trace.Span {
 	s := opentracing.StartSpan(name)
 
 	return &Span{
-		span: s,
+		RawSpan: s,
 	}
 }
 
@@ -93,17 +94,17 @@ func (t Tracer) StartSpanFromContext(name string, ctx context.Context) (trace.Sp
 	s, c := opentracing.StartSpanFromContext(ctx, name)
 
 	return &Span{
-		span: s,
+		RawSpan: s,
 	}, c
 }
 
 // StartSpanWithParent starts span with parent span and name
 func (t Tracer) StartSpanWithParent(name string, parent trace.Span) trace.Span {
 	ps := assertSpanType(parent)
-	s := opentracing.StartSpan(name, opentracing.ChildOf(ps.span.Context()))
+	s := opentracing.StartSpan(name, opentracing.ChildOf(ps.RawSpan.Context()))
 
 	return &Span{
-		span: s,
+		RawSpan: s,
 	}
 }
 
@@ -112,7 +113,7 @@ func (t Tracer) SpanFromContext(ctx context.Context) trace.Span {
 	s := opentracing.SpanFromContext(ctx)
 
 	return &Span{
-		span: s,
+		RawSpan: s,
 	}
 }
 
@@ -120,7 +121,7 @@ func (t Tracer) SpanFromContext(ctx context.Context) trace.Span {
 func (t Tracer) ContextWithSpan(ctx context.Context, span trace.Span) context.Context {
 	s := assertSpanType(span)
 
-	return opentracing.ContextWithSpan(ctx, s.span)
+	return opentracing.ContextWithSpan(ctx, s.RawSpan)
 }
 
 // InjectSpan injects span in particular format to carrier
@@ -128,7 +129,7 @@ func (t Tracer) InjectSpan(s trace.Span, format interface{}, carrier interface{}
 	span := assertSpanType(s)
 	tracer := opentracing.GlobalTracer()
 
-	return tracer.Inject(span.span.Context(), format, carrier)
+	return tracer.Inject(span.RawSpan.Context(), format, carrier)
 }
 
 // ExtractSpan extracts span in particular format from carrier and starts it with name
@@ -138,7 +139,7 @@ func (t Tracer) ExtractSpan(name string, format interface{}, carrier interface{}
 	s := opentracing.StartSpan(name, ext.RPCServerOption(ctx))
 
 	return &Span{
-		span: s,
+		RawSpan: s,
 	}, err
 }
 
@@ -149,8 +150,8 @@ func (t Tracer) Dispose() {
 	}
 }
 
-func assertSpanType(s trace.Span) Span {
-	span, ok := s.(Span)
+func assertSpanType(s trace.Span) *Span {
+	span, ok := s.(*Span)
 	if !ok {
 		panic("Incorrect type of span")
 	}
