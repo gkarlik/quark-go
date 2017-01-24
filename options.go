@@ -1,6 +1,8 @@
 package quark
 
 import (
+	"net/url"
+
 	"github.com/gkarlik/quark/broker"
 	log "github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/metrics"
@@ -8,7 +10,6 @@ import (
 	"github.com/gkarlik/quark/service/discovery"
 	"github.com/gkarlik/quark/service/trace"
 	"golang.org/x/net/context"
-	"net/url"
 )
 
 // Option represents function which is used to set service options
@@ -54,7 +55,7 @@ func Address(url *url.URL) Option {
 	}
 }
 
-// Logger allows to set service logger
+// Logger allows to set service logger. If it is not set, internal logger will be taken.
 func Logger(l log.Logger) Option {
 	return func(o *Options) {
 		o.Logger = l

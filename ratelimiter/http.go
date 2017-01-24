@@ -1,10 +1,14 @@
 package ratelimiter
 
 import (
-	"golang.org/x/time/rate"
 	"net/http"
 	"time"
+
+	"github.com/gkarlik/quark/logger"
+	"golang.org/x/time/rate"
 )
+
+const componentName = "HttpRateLimiter"
 
 // HTTPRateLimiter is default quark implementation of execution limitation mechanism
 type HTTPRateLimiter struct {
@@ -22,6 +26,9 @@ func NewHTTPRateLimiter(interval time.Duration) *HTTPRateLimiter {
 func (rl HTTPRateLimiter) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if rl.l.Allow() == false {
+			logger.Log().InfoWithFields(logger.LogFields{
+				"component": componentName,
+			}, "Too many request for the interval")
 			w.WriteHeader(429) // to many requests
 			w.Write([]byte{})
 

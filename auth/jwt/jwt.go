@@ -2,13 +2,13 @@ package jwt
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	jwt "github.com/dgrijalva/jwt-go"
-	"golang.org/x/net/context"
 	"net/http"
 	"strings"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gkarlik/quark/logger"
+	"golang.org/x/net/context"
 )
 
 // Credentials represents user credentials
@@ -25,7 +25,9 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// AuthenticationMiddleware represents HTTP middleware responsible for authentication (jwt based)
+const componentName = "JwtAuthenticationMiddleware"
+
+// AuthenticationMiddleware represents HTTP middleware responsible for authentication (JWT based)
 type AuthenticationMiddleware struct {
 	Options Options
 }
@@ -46,11 +48,11 @@ func NewAuthenticationMiddleware(opts ...Option) *AuthenticationMiddleware {
 	}
 
 	if am.Options.Authenticate == nil {
-		panic("Authentication function must be set")
+		panic(fmt.Sprintf("[%s]: Cannot create instance - authentication function must be set!", componentName))
 	}
 
 	if am.Options.Secret == "" {
-		panic("Secret must be set")
+		panic(fmt.Sprintf("[%s]: Cannot create instance - secret must be set!", componentName))
 	}
 
 	return am
@@ -62,36 +64,40 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 		// parse token from Authorization header
 		ah := r.Header.Get("Authorization")
 		if ah == "" {
-			log.Error("No authorization header")
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "No authorization header")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		s := strings.Split(ah, " ")
 
 		if len(s) != 2 || strings.ToUpper(s[0]) != "BEARER" {
-			log.Error("Incorrect Authorization header")
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Incorrect authorization header")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		tokenString := s[1]
 		if tokenString == "" {
-			log.Error("TokenString is empty")
+			logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "TokenString is empty")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("Unexpected signing method")
+				return nil, fmt.Errorf("[%s]: Unexpected signing method", componentName)
 			}
 
 			return []byte(am.Options.Secret), nil
 		})
 
 		if err != nil {
-			log.Error(err)
+			logger.Log().ErrorWithFields(logger.LogFields{
+				"error":       err,
+				"tokenString": tokenString,
+				"component":   componentName,
+			}, "Error parsing token string")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -101,7 +107,7 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 			ctx := context.WithValue(r.Context(), am.Options.ContextKey, *claims)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
-			log.Error("Token is invalid")
+			logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Token is invalid")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -112,9 +118,10 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.Request) {
 	// check if method is POST
 	if r.Method != http.MethodPost {
-		log.WithFields(log.Fields{
-			"method": r.Method,
-		}).Info("Request method is")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"method":    r.Method,
+			"component": componentName,
+		}, "Incorrect http method")
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -123,10 +130,11 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 	var credentials Credentials
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&credentials); err != nil {
-		log.WithFields(log.Fields{
+		logger.Log().ErrorWithFields(logger.LogFields{
 			"error":       err,
 			"credentials": credentials,
-		}).Error("Cannot decode credentials")
+			"component":   componentName,
+		}, "Cannot decode credentials")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -134,7 +142,10 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 	// authenticate user using external function
 	claims, err := am.Options.Authenticate(credentials)
 	if err != nil {
-		log.WithError(err).Error("Cannot authenticate user")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"component": componentName,
+		}, "Cannot authenticate user")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -144,10 +155,18 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 	tokenString, err := token.SignedString([]byte(am.Options.Secret))
 	if err != nil {
 		// this code probably won't be execute - don't know how to test it
-		log.WithError(err).Error("Cannot sign token")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"component": componentName,
+		}, "Cannot sign token")
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+
+	logger.Log().InfoWithFields(logger.LogFields{
+		"token":     tokenString,
+		"component": componentName,
+	}, "Token generated - sending to client")
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "{ \"token\": %q }", tokenString)

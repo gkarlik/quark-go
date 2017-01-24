@@ -3,14 +3,14 @@ package jwt_test
 import (
 	"encoding/json"
 	"errors"
-	log "github.com/Sirupsen/logrus"
-	"github.com/gkarlik/quark/auth/jwt"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gkarlik/quark/auth/jwt"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAuthenticationMiddleware(t *testing.T) {
@@ -134,8 +134,6 @@ func TestAuthentication(t *testing.T) {
 	var data Data
 	json.Unmarshal(b, &data)
 
-	log.WithField("token", data.Token).Info("Token received")
-
 	r, _ = http.NewRequest(http.MethodGet, "/authenticate", nil)
 	r.Header.Add("Authorization", "bearer "+data.Token)
 
@@ -153,7 +151,7 @@ func TestIncorrectAuthorizationHeader(t *testing.T) {
 
 	am.Authenticate(ah).ServeHTTP(w, r)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
 func TestIncorrectToken(t *testing.T) {
@@ -182,5 +180,5 @@ func TestLackOfAuthorizationHeader(t *testing.T) {
 
 	am.Authenticate(ah).ServeHTTP(w, r)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }

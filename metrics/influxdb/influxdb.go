@@ -2,10 +2,13 @@ package influxdb
 
 import (
 	"errors"
-	log "github.com/Sirupsen/logrus"
+
+	"github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/metrics"
 	"github.com/influxdata/influxdb/client/v2"
 )
+
+const componentName = "InfluxDBMetricsReporter"
 
 // MetricsReporter represents kpi reporting mechanism based on InfluxDB
 type MetricsReporter struct {
@@ -54,7 +57,10 @@ func NewMetricsReporter(address string, opts ...Option) *MetricsReporter {
 
 	options.Address = address
 
-	log.WithField("address", address).Info("Creating InfluxDB HTTP client")
+	logger.Log().InfoWithFields(logger.LogFields{
+		"address":   address,
+		"component": componentName,
+	}, "Creating InfluxDB HTTP client")
 
 	c, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     address,
@@ -63,13 +69,14 @@ func NewMetricsReporter(address string, opts ...Option) *MetricsReporter {
 	})
 
 	if err != nil {
-		log.WithFields(log.Fields{
-			"address":  address,
-			"username": options.Username,
-			"password": options.Password,
-			"database": options.Database,
-			"error":    err,
-		}).Panic("Cannot create InfluxDB HTTP client")
+		logger.Log().PanicWithFields(logger.LogFields{
+			"address":   address,
+			"username":  options.Username,
+			"password":  options.Password,
+			"database":  options.Database,
+			"error":     err,
+			"component": componentName,
+		}, "Cannot create InfluxDB HTTP client")
 	}
 
 	return &MetricsReporter{
@@ -89,6 +96,11 @@ func (r MetricsReporter) Report(ms []metrics.Metric) error {
 	})
 
 	if err != nil {
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"component": componentName,
+		}, "Cannot prepare points batch")
+
 		return err
 	}
 
@@ -103,6 +115,10 @@ func (r MetricsReporter) Report(ms []metrics.Metric) error {
 	}
 
 	if err = r.Client.Write(bp); err != nil {
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"component": componentName,
+		}, "Cannot send metrics to the server")
 		return err
 	}
 
@@ -111,7 +127,10 @@ func (r MetricsReporter) Report(ms []metrics.Metric) error {
 
 // Dispose cleans up MetricsReporter instance
 func (r MetricsReporter) Dispose() {
+	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing metrics reporter component")
+
 	if r.Client != nil {
 		r.Client.Close()
+		r.Client = nil
 	}
 }

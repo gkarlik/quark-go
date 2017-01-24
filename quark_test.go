@@ -1,16 +1,19 @@
 package quark_test
 
 import (
+	"net/url"
+	"testing"
+
+	"os"
+
 	"github.com/gkarlik/quark"
 	"github.com/gkarlik/quark/broker"
-	"github.com/gkarlik/quark/logger/logrus"
+	"github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/metrics"
 	"github.com/gkarlik/quark/service/discovery"
 	"github.com/gkarlik/quark/service/trace"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
-	"net/url"
-	"testing"
 )
 
 type TestServiceDiscovery struct{}
@@ -89,7 +92,7 @@ func TestServiceBase(t *testing.T) {
 	a, _ := quark.GetHostAddress(1234)
 
 	discovery := &TestServiceDiscovery{}
-	logger := logrus.NewLogger()
+	logger := logger.Log()
 	broker := &TestBroker{}
 	metrics := &TestMetrics{}
 	tracer := &TestTracer{}
@@ -136,20 +139,6 @@ func TestServiceBase(t *testing.T) {
 	assert.Equal(t, "192.168.1.107", addr.String())
 }
 
-func TestLackOfLogger(t *testing.T) {
-	a, _ := quark.GetHostAddress(1234)
-
-	assert.Panics(t, func() {
-		var _ = &TestService{
-			ServiceBase: quark.NewService(
-				quark.Name("TestService"),
-				quark.Version("1.0"),
-				quark.Tags("A", "B"),
-				quark.Address(a)),
-		}
-	})
-}
-
 func TestLackOfName(t *testing.T) {
 	a, _ := quark.GetHostAddress(1234)
 
@@ -158,8 +147,7 @@ func TestLackOfName(t *testing.T) {
 			ServiceBase: quark.NewService(
 				quark.Version("1.0"),
 				quark.Tags("A", "B"),
-				quark.Address(a),
-				quark.Logger(logrus.NewLogger())),
+				quark.Address(a)),
 		}
 	})
 }
@@ -172,8 +160,7 @@ func TestLackOfVersion(t *testing.T) {
 			ServiceBase: quark.NewService(
 				quark.Name("TestService"),
 				quark.Tags("A", "B"),
-				quark.Address(a),
-				quark.Logger(logrus.NewLogger())),
+				quark.Address(a)),
 		}
 	})
 }
@@ -184,8 +171,29 @@ func TestLackOfAddress(t *testing.T) {
 			ServiceBase: quark.NewService(
 				quark.Name("TestService"),
 				quark.Version("1.0"),
-				quark.Tags("A", "B"),
-				quark.Logger(logrus.NewLogger())),
+				quark.Tags("A", "B")),
 		}
+	})
+}
+
+func TestGetEnvVar(t *testing.T) {
+	key := "GET_ENV_TEST_VAR"
+
+	os.Setenv(key, "Lorem ipsum")
+
+	v := quark.GetEnvVar(key)
+
+	assert.Equal(t, "Lorem ipsum", v)
+
+	os.Setenv(key, "")
+
+	assert.Panics(t, func() {
+		quark.GetEnvVar(key)
+	})
+
+	os.Unsetenv(key)
+
+	assert.Panics(t, func() {
+		quark.GetEnvVar(key)
 	})
 }

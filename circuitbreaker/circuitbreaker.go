@@ -1,14 +1,17 @@
 package circuitbreaker
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"time"
+
+	"github.com/gkarlik/quark/logger"
 )
 
 // CircuitBreaker represents Circuit Breaker pattern mechanism
 type CircuitBreaker interface {
 	Execute(f func() (interface{}, error), opts ...Option) (interface{}, error)
 }
+
+const componentName = "CircuitBreaker"
 
 // DefaultCircuitBreaker is default quark implementation of Circuit Breaker pattern
 type DefaultCircuitBreaker struct{}
@@ -25,33 +28,42 @@ func (cb DefaultCircuitBreaker) Execute(f func() (interface{}, error), opts ...O
 
 	r, err := f()
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error":    err,
-			"attempts": options.Attempts,
-		}).Warn("Detected failure. Retrying...")
+		logger.Log().WarningWithFields(logger.LogFields{
+			"error":     err,
+			"attempts":  options.Attempts,
+			"component": componentName,
+		}, "Detected failure. Retrying...")
 
 		for i := 1; i <= options.Attempts; i++ {
-			log.WithField("timeout", options.Timeout).Info("Sleeping for configured timeout...")
+			logger.Log().InfoWithFields(logger.LogFields{
+				"timeout":   options.Timeout,
+				"component": componentName,
+			}, "Sleeping for configured timeout...")
 			time.Sleep(options.Timeout)
 
-			log.WithFields(log.Fields{
-				"attempt": i,
-				"from":    options.Attempts,
-			}).Info("Retrying execution...")
+			logger.Log().InfoWithFields(logger.LogFields{
+				"attempt":   i,
+				"from":      options.Attempts,
+				"component": componentName,
+			}, "Retrying execution...")
 
 			r, err = f()
 			if err != nil {
-				log.WithFields(log.Fields{
-					"error":   err,
-					"attempt": i,
-				}).Warn("Last execution failed")
+				logger.Log().WarningWithFields(logger.LogFields{
+					"error":     err,
+					"attempt":   i,
+					"component": componentName,
+				}, "Last execution failed")
 				continue
 			} else {
-				log.WithField("attempt", i).Info("Last retry succeed")
+				logger.Log().InfoWithFields(logger.LogFields{
+					"attempt":   i,
+					"component": componentName,
+				}, "Last retry succeed")
 				return r, nil
 			}
 		}
-		log.Error("All retries failed.")
+		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "All retries failed.")
 
 		return nil, err
 	}

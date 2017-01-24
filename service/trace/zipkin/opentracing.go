@@ -4,6 +4,7 @@ import (
 	"net/url"
 
 	cb "github.com/gkarlik/quark/circuitbreaker"
+	"github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/service/trace"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
@@ -11,6 +12,8 @@ import (
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"
 	"golang.org/x/net/context"
 )
+
+const componentName = "ZipkinTracer"
 
 // Span represents tracing span based on opentracing zipkin framework
 type Span struct {
@@ -145,8 +148,11 @@ func (t Tracer) ExtractSpan(name string, format interface{}, carrier interface{}
 
 // Dispose cleans up tracer instance
 func (t Tracer) Dispose() {
+	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing tracer component")
+
 	if t.collector != nil {
 		t.collector.Close()
+		t.collector = nil
 	}
 }
 

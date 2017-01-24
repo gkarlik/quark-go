@@ -23,7 +23,7 @@ func NewRandomLBStrategy() *LoadBalancingStrategy {
 func (s LoadBalancingStrategy) PickServiceAddress(sa []*url.URL) (*url.URL, error) {
 	l := len(sa)
 	if l == 0 {
-		return nil, errors.New("Registration list is empty")
+		return nil, errors.New("Service registration list is empty")
 	}
 
 	i := s.Randomizer.Intn(l)

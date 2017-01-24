@@ -3,22 +3,24 @@ package quark
 import (
 	"errors"
 	"fmt"
+	"net"
+	"net/url"
+	"os"
+
 	"github.com/gkarlik/quark/broker"
-	log "github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/metrics"
 	"github.com/gkarlik/quark/service"
 	"github.com/gkarlik/quark/service/discovery"
 	"github.com/gkarlik/quark/service/trace"
 	"github.com/gkarlik/quark/system"
-	"net"
-	"net/url"
 )
 
 // Service represents service instance
 type Service interface {
 	Info() service.Info
 	Options() Options
-	Log() log.Logger
+	Log() logger.Logger
 	Discovery() discovery.ServiceDiscovery
 	Broker() broker.MessageBroker
 	Metrics() metrics.Reporter
@@ -42,7 +44,8 @@ type ServiceBase struct {
 func NewService(opts ...Option) *ServiceBase {
 	s := &ServiceBase{
 		options: Options{
-			Info: service.Info{},
+			Info:   service.Info{},
+			Logger: logger.Log(),
 		},
 	}
 
@@ -56,10 +59,6 @@ func NewService(opts ...Option) *ServiceBase {
 
 	if s.Info().Version == "" {
 		panic("Service version option must be specified")
-	}
-
-	if s.Log() == nil {
-		panic("Service logger option must be specified")
 	}
 
 	if s.Info().Address == nil {
@@ -90,7 +89,7 @@ func (sb ServiceBase) Options() Options {
 }
 
 // Log gets service logger instance
-func (sb ServiceBase) Log() log.Logger {
+func (sb ServiceBase) Log() logger.Logger {
 	return sb.options.Logger
 }
 
@@ -119,6 +118,15 @@ func (sb ServiceBase) Dispose() {
 	if sb.Discovery() != nil {
 		sb.Discovery().Dispose()
 	}
+}
+
+// GetEnvVar gets environment variable by key. Panics is variable is not set.
+func GetEnvVar(key string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		panic(fmt.Sprintf("Environment variable %q is not set!", key))
+	}
+	return v
 }
 
 // GetHostAddress return host and port address on which service is hosted

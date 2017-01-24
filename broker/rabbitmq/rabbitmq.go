@@ -2,12 +2,15 @@ package rabbitmq
 
 import (
 	"encoding/json"
-	"errors"
-	log "github.com/Sirupsen/logrus"
+	"fmt"
+
 	"github.com/gkarlik/quark/broker"
 	cb "github.com/gkarlik/quark/circuitbreaker"
+	"github.com/gkarlik/quark/logger"
 	"github.com/streadway/amqp"
 )
+
+const componentName = "RabbitMQBroker"
 
 // MessageBroker represents message broker based on RabbitMQ
 type MessageBroker struct {
@@ -17,40 +20,53 @@ type MessageBroker struct {
 // NewMessageBroker creates instance of RabbitMQ message broker which is connected to specified address. Panics if cannot create an instance
 func NewMessageBroker(address string, opts ...cb.Option) *MessageBroker {
 	conn, err := new(cb.DefaultCircuitBreaker).Execute(func() (interface{}, error) {
-		log.WithField("address", address).Info("Connecting to RabbitMQ")
+		logger.Log().InfoWithFields(logger.LogFields{
+			"address":   address,
+			"component": componentName,
+		}, "Connecting to RabbitMQ server")
 		return amqp.Dial(address)
 	}, opts...)
 
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error":   err,
-			"address": address,
-		}).Panic("Cannot connect to RabbitMQ")
+		logger.Log().PanicWithFields(logger.LogFields{
+			"error":     err,
+			"address":   address,
+			"component": componentName,
+		}, "Cannot connect to RabbitMQ server")
 	}
-	log.WithField("address", address).Info("Connected to RabbitMQ")
+	logger.Log().InfoWithFields(logger.LogFields{
+		"address":   address,
+		"component": componentName,
+	}, "Connected to RabbitMQ server")
 
 	return &MessageBroker{Connection: conn.(*amqp.Connection)}
 }
 
 // PublishMessage publishes message to RabbitMQ Message Bus
 func (b MessageBroker) PublishMessage(m broker.Message) error {
-	log.WithField("message", m).Info("Publishing message")
+	logger.Log().InfoWithFields(logger.LogFields{
+		"message":   m,
+		"component": componentName,
+	}, "Publishing message")
 
 	if b.Connection == nil {
-		log.Error("Not connected to RabbitMQ")
+		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Not connected to RabbitMQ server")
 
-		return errors.New("Not connected to RabbitMQ. Please check logs and network connection")
+		return fmt.Errorf("[%s]: Not connected to RabbitMQ server. Please check logs and network connection", componentName)
 	}
 
 	if m.Key == "" {
-		log.Error("Message key cannot be empty")
+		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Cannot publish message - message key cannot be empty")
 
-		return errors.New("Message key cannot be empty")
+		return fmt.Errorf("[%s]: Cannot publish message - message key cannot be empty", componentName)
 	}
 
 	ch, err := b.Connection.Channel()
 	if err != nil {
-		log.Error("Cannot create channel")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"component": componentName,
+		}, "Cannot create channel")
 
 		return err
 	}
@@ -66,20 +82,22 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 	)
 
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"queue": m.Key,
-		}).Error("Cannot create queue")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"queue":     m.Key,
+			"component": componentName,
+		}, "Cannot create queue")
 
 		return err
 	}
 
 	body, err := json.Marshal(m.Value)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error":   err,
-			"message": m,
-		}).Error("Cannot parse message body")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"message":   m,
+			"component": componentName,
+		}, "Cannot parse message body")
 	}
 
 	err = ch.Publish(
@@ -93,10 +111,11 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 		})
 
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"queue": q.Name,
-		}).Error("Cannot publish message")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"queue":     q.Name,
+			"component": componentName,
+		}, "Cannot publish message")
 	}
 
 	return nil
@@ -104,23 +123,29 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 
 // Subscribe subscribes to specified routing key in RabbitMQ Message Bus
 func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
-	log.WithField("key", key).Info("Subscribing to messages with key")
+	logger.Log().InfoWithFields(logger.LogFields{
+		"key":       key,
+		"component": componentName,
+	}, "Subscribing to messages with key")
 
 	if b.Connection == nil {
-		log.Error("Not connected to AMQP broker")
+		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Not connected to RabbitMQ server")
 
-		return nil, errors.New("Not connected to AMQP broker. Please check logs and network connection")
+		return nil, fmt.Errorf("[%s]: Not connected to RabbitMQ server. Please check logs and network connection", componentName)
 	}
 
 	if key == "" {
-		log.Error("Key cannot be empty")
+		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Cannot subscribe to messages - Key cannot be empty")
 
-		return nil, errors.New("Key cannot be empty")
+		return nil, fmt.Errorf("[%s]: Cannot subscribe to messages - Key cannot be empty", componentName)
 	}
 
 	ch, err := b.Connection.Channel()
 	if err != nil {
-		log.Error("Cannot create channel")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"component": componentName,
+		}, "Cannot create channel")
 
 		return nil, err
 	}
@@ -135,10 +160,11 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	)
 
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"queue": key,
-		}).Error("Cannot create queue")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"queue":     key,
+			"component": componentName,
+		}, "Cannot create queue")
 
 		return nil, err
 	}
@@ -154,10 +180,11 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	)
 
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"queue": q.Name,
-		}).Error("Cannot consume message")
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"queue":     q.Name,
+			"component": componentName,
+		}, "Cannot consume message")
 	}
 
 	mgs := make(chan broker.Message)
@@ -175,7 +202,10 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 
 // Dispose closes RabbitMQ Message Bus
 func (b MessageBroker) Dispose() {
+	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing broker component")
+
 	if b.Connection != nil {
 		b.Connection.Close()
+		b.Connection = nil
 	}
 }

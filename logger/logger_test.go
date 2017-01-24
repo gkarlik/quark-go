@@ -1,14 +1,14 @@
-package logrus_test
+package logger_test
 
 import (
-	"github.com/gkarlik/quark/logger"
-	log "github.com/gkarlik/quark/logger/logrus"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/gkarlik/quark/logger"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLogrusLogger(t *testing.T) {
-	l := log.NewLogger()
+	l := logger.NewLogger()
 	l.SetLogLevel(logger.DebugLogLevel)
 
 	assert.Panics(t, func() {
@@ -34,4 +34,18 @@ func TestLogrusLogger(t *testing.T) {
 
 	l.Info("Test info")
 	l.InfoWithFields(logger.LogFields{"info": true}, "Test info")
+}
+
+func TestLackOfInternalLogger(t *testing.T) {
+	assert.Panics(t, func() {
+		logger.SetInternalLogger(nil)
+	})
+}
+
+func TestSetInternalLogger(t *testing.T) {
+	l := logger.NewLogger()
+
+	logger.SetInternalLogger(l)
+
+	assert.Equal(t, l, logger.Log())
 }

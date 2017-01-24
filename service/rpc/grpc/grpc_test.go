@@ -2,14 +2,14 @@ package grpc_test
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/gkarlik/quark"
-	"github.com/gkarlik/quark/logger/logrus"
 	rpc "github.com/gkarlik/quark/service/rpc/grpc"
 	proxy "github.com/gkarlik/quark/service/rpc/grpc/test"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"testing"
 )
 
 type TestRPCService struct {
@@ -39,8 +39,7 @@ func TestGRPCServer(t *testing.T) {
 			quark.Name("TestService"),
 			quark.Version("1.0"),
 			quark.Tags("A"),
-			quark.Address(addr),
-			quark.Logger(logrus.NewLogger())),
+			quark.Address(addr)),
 	}
 
 	go func() {
@@ -79,8 +78,7 @@ func TestRegisterService(t *testing.T) {
 			quark.Name("TestService"),
 			quark.Version("1.0"),
 			quark.Tags("A"),
-			quark.Address(addr),
-			quark.Logger(logrus.NewLogger())),
+			quark.Address(addr)),
 	}
 
 	assert.Panics(t, func() {
