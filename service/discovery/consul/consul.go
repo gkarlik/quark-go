@@ -125,7 +125,12 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.U
 
 	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Picking service using load balancing strategy")
 
-	return opts.Strategy.PickServiceAddress(srvs)
+	sa, err := opts.Strategy.PickServiceAddress(srvs)
+	if sa != nil {
+		logger.Log().InfoWithFields(logger.LogFields{"component": componentName, "address": sa.String()})
+	}
+
+	return sa, err
 }
 
 // Dispose cleans up ServiceDiscovery instance

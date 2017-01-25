@@ -7,7 +7,6 @@ import (
 	"github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/service/trace"
 	"github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"
 	"golang.org/x/net/context"
@@ -132,14 +131,27 @@ func (t Tracer) InjectSpan(s trace.Span, format interface{}, carrier interface{}
 	span := assertSpanType(s)
 	tracer := opentracing.GlobalTracer()
 
+	//ext.SpanKindRPCClient.Set(span.RawSpan)
+
 	return tracer.Inject(span.RawSpan.Context(), format, carrier)
 }
 
-// ExtractSpan extracts span in particular format from carrier and starts it with name
+// ExtractSpan extracts span in particular format from carrier and starts it with name and extracted span as a parent
 func (t Tracer) ExtractSpan(name string, format interface{}, carrier interface{}) (trace.Span, error) {
+	var s opentracing.Span
+
 	tracer := opentracing.GlobalTracer()
 	ctx, err := tracer.Extract(format, carrier)
-	s := opentracing.StartSpan(name, ext.RPCServerOption(ctx))
+	if err != nil {
+		logger.Log().ErrorWithFields(logger.LogFields{
+			"error":     err,
+			"component": componentName,
+		}, "Cannot extract span from carrier")
+
+		s = opentracing.StartSpan(name)
+	} else {
+		s = opentracing.StartSpan(name, opentracing.ChildOf(ctx))
+	}
 
 	return &Span{
 		RawSpan: s,

@@ -105,12 +105,22 @@ func (r MetricsReporter) Report(ms []metrics.Metric) error {
 	}
 
 	for _, m := range ms {
-		p, _ := client.NewPoint(
+		p, err := client.NewPoint(
 			m.Name,
 			m.Tags,
 			m.Values,
 			m.Date,
 		)
+
+		if err != nil {
+			logger.Log().ErrorWithFields(logger.LogFields{
+				"component": componentName,
+				"error":     err,
+			}, "Cannot create batch point")
+
+			return err
+		}
+
 		bp.AddPoint(p)
 	}
 
