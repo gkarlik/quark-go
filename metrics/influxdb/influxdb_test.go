@@ -1,14 +1,15 @@
 package influxdb_test
 
 import (
-	"github.com/gkarlik/quark/metrics"
-	"github.com/gkarlik/quark/metrics/influxdb"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/gkarlik/quark/metrics"
+	"github.com/gkarlik/quark/metrics/influxdb"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewMetricsReporter(t *testing.T) {
@@ -72,7 +73,7 @@ func TestMetricsReporter(t *testing.T) {
 		},
 	}
 
-	err := mr.Report([]metrics.Metric{m1, m2})
+	err := mr.Report(m1, m2)
 
 	assert.NoError(t, err, "Error reporting metrics")
 	assert.Equal(t, "/write?consistency=&db=database&precision=ns&rp=", data.url)
@@ -103,29 +104,63 @@ func TestMetricsReporterNetworkError(t *testing.T) {
 		},
 	}
 
-	err := mr.Report([]metrics.Metric{m1})
+	err := mr.Report(m1)
 
 	assert.Error(t, err, "Report should return an error")
 }
 
-func TestMetricsReporterEmptyMetricsArray(t *testing.T) {
-	mr := influxdb.NewMetricsReporter("http://influxdb/",
+func TestMetricsReporterEmptyDateMetricsArray(t *testing.T) {
+	data := struct {
+		url  string
+		body string
+	}{}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+
+		b, _ := ioutil.ReadAll(r.Body)
+
+		data.url = r.URL.String()
+		data.body = string(b)
+	}))
+	defer ts.Close()
+
+	mr := influxdb.NewMetricsReporter(ts.URL,
 		influxdb.Database("database"),
 		influxdb.Username("user"),
 		influxdb.Password("password"))
 
-	err := mr.Report([]metrics.Metric{})
+	m1 := metrics.Metric{
+		Name: "test",
+		Tags: map[string]string{
+			"A": "1",
+			"B": "2",
+		},
+		Values: map[string]interface{}{
+			"C": 3,
+			"D": 4,
+		},
+	}
 
-	assert.Error(t, err, "Report should return an error")
+	err := mr.Report(m1)
+
+	assert.NoError(t, err, "Error reporting metrics")
+	assert.Equal(t, "/write?consistency=&db=database&precision=ns&rp=", data.url)
+	assert.Contains(t, data.body, "test,A=1,B=2 C=3i,D=4i")
 }
 
-func TestMetricsReporterNilMetricsArray(t *testing.T) {
-	mr := influxdb.NewMetricsReporter("http://influxdb/",
+func TestMetricsEmptyList(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer ts.Close()
+
+	mr := influxdb.NewMetricsReporter(ts.URL,
 		influxdb.Database("database"),
 		influxdb.Username("user"),
 		influxdb.Password("password"))
 
-	err := mr.Report(nil)
+	err := mr.Report()
 
 	assert.Error(t, err, "Report should return an error")
 }

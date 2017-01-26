@@ -1,12 +1,6 @@
 package quark
 
 import (
-	"errors"
-	"fmt"
-	"net"
-	"net/url"
-	"os"
-
 	"github.com/gkarlik/quark/broker"
 	"github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/metrics"
@@ -24,6 +18,7 @@ type Service interface {
 	Discovery() discovery.ServiceDiscovery
 	Broker() broker.MessageBroker
 	Metrics() metrics.Reporter
+	Tracer() trace.Tracer
 
 	system.Disposer
 }
@@ -118,65 +113,4 @@ func (sb ServiceBase) Dispose() {
 	if sb.Discovery() != nil {
 		sb.Discovery().Dispose()
 	}
-}
-
-// GetEnvVar gets environment variable by key. Panics is variable is not set.
-func GetEnvVar(key string) string {
-	v := os.Getenv(key)
-	if v == "" {
-		panic(fmt.Sprintf("Environment variable %q is not set!", key))
-	}
-	return v
-}
-
-// GetHostAddress return host and port address on which service is hosted
-func GetHostAddress(port int) (*url.URL, error) {
-	ip, err := getLocalIPAddress()
-	if err != nil {
-		return nil, err
-	}
-
-	u := fmt.Sprintf("%s:%d", ip, port)
-	if port == 0 {
-		u = fmt.Sprintf(ip)
-	}
-
-	return url.Parse(u)
-}
-
-func getLocalIPAddress() (string, error) {
-	ifaces, error := net.Interfaces()
-	if error != nil {
-		return "", error
-	}
-	for _, iface := range ifaces {
-		if iface.Flags&net.FlagUp == 0 {
-			continue // interface down
-		}
-		if iface.Flags&net.FlagLoopback != 0 {
-			continue // loopback interface
-		}
-		addrs, error := iface.Addrs()
-		if error != nil {
-			return "", error
-		}
-		for _, addr := range addrs {
-			var ip net.IP
-			switch v := addr.(type) {
-			case *net.IPNet:
-				ip = v.IP
-			case *net.IPAddr:
-				ip = v.IP
-			}
-			if ip == nil || ip.IsLoopback() {
-				continue
-			}
-			ip = ip.To4()
-			if ip == nil {
-				continue // not an ipv4 address
-			}
-			return ip.String(), nil
-		}
-	}
-	return "", errors.New("Network not available")
 }

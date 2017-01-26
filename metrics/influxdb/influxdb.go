@@ -2,6 +2,7 @@ package influxdb
 
 import (
 	"errors"
+	"time"
 
 	"github.com/gkarlik/quark/logger"
 	"github.com/gkarlik/quark/metrics"
@@ -86,7 +87,7 @@ func NewMetricsReporter(address string, opts ...Option) *MetricsReporter {
 }
 
 // Report send metrics to InfluxDB
-func (r MetricsReporter) Report(ms []metrics.Metric) error {
+func (r MetricsReporter) Report(ms ...metrics.Metric) error {
 	if ms == nil || len(ms) == 0 {
 		return errors.New("Metrics array cannot be nil or empty")
 	}
@@ -104,13 +105,17 @@ func (r MetricsReporter) Report(ms []metrics.Metric) error {
 		return err
 	}
 
+	var t time.Time
+
 	for _, m := range ms {
-		p, err := client.NewPoint(
-			m.Name,
-			m.Tags,
-			m.Values,
-			m.Date,
-		)
+		var p *client.Point
+		var err error
+
+		if m.Date == t {
+			p, err = client.NewPoint(m.Name, m.Tags, m.Values, time.Now())
+		} else {
+			p, err = client.NewPoint(m.Name, m.Tags, m.Values, m.Date)
+		}
 
 		if err != nil {
 			logger.Log().ErrorWithFields(logger.LogFields{

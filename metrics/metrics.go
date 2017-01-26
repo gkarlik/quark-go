@@ -1,8 +1,9 @@
 package metrics
 
 import (
-	"github.com/gkarlik/quark/system"
 	"time"
+
+	"github.com/gkarlik/quark/system"
 )
 
 // Metric represents metric created by the service
@@ -15,6 +16,6 @@ type Metric struct {
 
 // Reporter represents metrics reporter mechanism
 type Reporter interface {
-	Report(ms []Metric) error
+	Report(ms ...Metric) error
 	system.Disposer
 }

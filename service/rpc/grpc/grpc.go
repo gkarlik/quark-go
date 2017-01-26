@@ -1,9 +1,11 @@
 package grpc
 
 import (
+	"encoding/base64"
 	"github.com/gkarlik/quark"
 	logging "github.com/gkarlik/quark/logger"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"net"
 	"strings"
 )
@@ -50,4 +52,28 @@ func (rpc *Server) Start(s quark.RPCService) {
 	if err := rpc.server.Serve(l); !strings.Contains(err.Error(), "use of closed network connection") {
 		s.Log().PanicWithFields(logging.LogFields{"error": err}, "Failed to serve clients")
 	}
+}
+
+type MetadataReaderWriter struct {
+	MD *metadata.MD
+}
+
+func (w MetadataReaderWriter) Set(key, val string) {
+	key = strings.ToLower(key)
+	if strings.HasSuffix(key, "-bin") {
+		val = string(base64.StdEncoding.EncodeToString([]byte(val)))
+	}
+
+	(*w.MD)[key] = append((*w.MD)[key], val)
+}
+
+func (w MetadataReaderWriter) ForeachKey(handler func(key, val string) error) error {
+	for k, vals := range *w.MD {
+		for _, v := range vals {
+			if err := handler(k, v); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

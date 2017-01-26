@@ -95,6 +95,10 @@ func (t Tracer) StartSpan(name string) trace.Span {
 func (t Tracer) StartSpanFromContext(name string, ctx context.Context) (trace.Span, context.Context) {
 	s, c := opentracing.StartSpanFromContext(ctx, name)
 
+	if s == nil {
+		return nil, c
+	}
+
 	return &Span{
 		RawSpan: s,
 	}, c
@@ -105,6 +109,10 @@ func (t Tracer) StartSpanWithParent(name string, parent trace.Span) trace.Span {
 	ps := assertSpanType(parent)
 	s := opentracing.StartSpan(name, opentracing.ChildOf(ps.RawSpan.Context()))
 
+	if s == nil {
+		return nil
+	}
+
 	return &Span{
 		RawSpan: s,
 	}
@@ -113,6 +121,10 @@ func (t Tracer) StartSpanWithParent(name string, parent trace.Span) trace.Span {
 // SpanFromContext creates span from context
 func (t Tracer) SpanFromContext(ctx context.Context) trace.Span {
 	s := opentracing.SpanFromContext(ctx)
+
+	if s == nil {
+		return nil
+	}
 
 	return &Span{
 		RawSpan: s,
@@ -130,8 +142,6 @@ func (t Tracer) ContextWithSpan(ctx context.Context, span trace.Span) context.Co
 func (t Tracer) InjectSpan(s trace.Span, format interface{}, carrier interface{}) error {
 	span := assertSpanType(s)
 	tracer := opentracing.GlobalTracer()
-
-	//ext.SpanKindRPCClient.Set(span.RawSpan)
 
 	return tracer.Inject(span.RawSpan.Context(), format, carrier)
 }

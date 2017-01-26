@@ -46,7 +46,7 @@ func (b *TestBroker) Dispose() {}
 
 type TestMetrics struct{}
 
-func (m *TestMetrics) Report(ms []metrics.Metric) error {
+func (m *TestMetrics) Report(ms ...metrics.Metric) error {
 	return nil
 }
 
@@ -132,11 +132,11 @@ func TestServiceBase(t *testing.T) {
 
 	addr, _ := quark.GetHostAddress(5678)
 	// address will change on CI server
-	assert.Equal(t, "192.168.1.107:5678", addr.String())
+	assert.Equal(t, "169.254.213.40:5678", addr.String())
 
 	addr, _ = quark.GetHostAddress(0)
 	// address will change on CI server
-	assert.Equal(t, "192.168.1.107", addr.String())
+	assert.Equal(t, "169.254.213.40", addr.String())
 }
 
 func TestLackOfName(t *testing.T) {
