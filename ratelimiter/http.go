@@ -10,26 +10,28 @@ import (
 
 const componentName = "HttpRateLimiter"
 
-// HTTPRateLimiter is default quark implementation of execution limitation mechanism
+// HTTPRateLimiter is default quark implementation of execution limitation mechanism.
 type HTTPRateLimiter struct {
-	l *rate.Limiter
+	Limiter *rate.Limiter // basic interval rate limiter
 }
 
-// NewHTTPRateLimiter creates instance of DefaultRateLimiter
+// NewHTTPRateLimiter creates instance of DefaultRateLimiter.
+// Interval is a frequency of requests that are allowed to be handle.
 func NewHTTPRateLimiter(interval time.Duration) *HTTPRateLimiter {
 	return &HTTPRateLimiter{
-		l: rate.NewLimiter(rate.Every(interval), 1),
+		Limiter: rate.NewLimiter(rate.Every(interval), 1),
 	}
 }
 
-// Handle handles rate limits in http server
+// Handle handles rate limits in HTTP server.
+// Responds with "429 - Too Many Requests" if requests frequency is to high.
 func (rl HTTPRateLimiter) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if rl.l.Allow() == false {
+		if rl.Limiter.Allow() == false {
 			logger.Log().InfoWithFields(logger.LogFields{
 				"component": componentName,
 			}, "Too many request for the interval")
-			w.WriteHeader(429) // to many requests
+			w.WriteHeader(429) // too many requests
 			w.Write([]byte{})
 
 			return

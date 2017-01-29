@@ -4,28 +4,28 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-// LogFields represents map between parameter name and value
+// LogFields represents map between parameter name and value.
 type LogFields map[string]interface{}
 
-// LogLevel represents logging level
+// LogLevel represents logging level.
 type LogLevel uint8
 
 const (
-	// PanicLogLevel represents Panic logging level
+	// PanicLogLevel represents Panic logging level.
 	PanicLogLevel LogLevel = iota
-	// FatalLogLevel represents Fatal logging level
+	// FatalLogLevel represents Fatal logging level.
 	FatalLogLevel
-	// ErrorLogLevel represents Error logging level
+	// ErrorLogLevel represents Error logging level.
 	ErrorLogLevel
-	// WarningLogLevel represents Warning logging level
+	// WarningLogLevel represents Warning logging level.
 	WarningLogLevel
-	// InfoLogLevel represents Panic Info level
+	// InfoLogLevel represents Panic Info level.
 	InfoLogLevel
-	// DebugLogLevel represents Debug logging level
+	// DebugLogLevel represents Debug logging level.
 	DebugLogLevel
 )
 
-// Logger represents logging mechanism
+// Logger represents logging mechanism.
 type Logger interface {
 	Panic(args ...interface{})
 	PanicWithFields(fields LogFields, args ...interface{})
@@ -50,7 +50,8 @@ type Logger interface {
 
 var logger = NewLogger()
 
-// SetInternalLogger sets logger for quark internal logging
+// SetInternalLogger sets logger for quark-go framework internal logging.
+// Internal logger is required and default implementation is base on "github.com/Sirupsen/logrus" library.
 func SetInternalLogger(l Logger) {
 	if l == nil {
 		panic("Internal logger must be set!")
@@ -59,12 +60,12 @@ func SetInternalLogger(l Logger) {
 	logger = l
 }
 
-// Log returns internally configured logger. By default it is set to Logrus logger.
+// Log returns internally configured logger. By default it is set to "github.com/Sirupsen/logrus" library logger.
 func Log() Logger {
 	return logger
 }
 
-// LogrusLogger represents loging mechanism based on Logrus library
+// LogrusLogger represents loging mechanism based on "github.com/Sirupsen/logrus" library.
 type LogrusLogger struct {
 }
 
@@ -73,67 +74,67 @@ func NewLogger() Logger {
 	return &LogrusLogger{}
 }
 
-// Panic logs message and panics
+// Panic logs message and panics.
 func (logger LogrusLogger) Panic(args ...interface{}) {
 	log.Panic(args...)
 }
 
-// PanicWithFields logs message with custom fields and panic
+// PanicWithFields logs message with custom fields and panic.
 func (logger LogrusLogger) PanicWithFields(fields LogFields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Panic(args...)
 }
 
-// Fatal logs message and calls exit(1)
+// Fatal logs message and calls exit(1).
 func (logger LogrusLogger) Fatal(args ...interface{}) {
 	log.Fatal(args...)
 }
 
-// FatalWithFields logs message with custom fields and calls exit(1)
+// FatalWithFields logs message with custom fields and calls exit(1).
 func (logger LogrusLogger) FatalWithFields(fields LogFields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Fatal(args...)
 }
 
-// Error logs error level message
+// Error logs error level message.
 func (logger LogrusLogger) Error(args ...interface{}) {
 	log.Error(args...)
 }
 
-// ErrorWithFields logs error level message with custom fields
+// ErrorWithFields logs error level message with custom fields.
 func (logger LogrusLogger) ErrorWithFields(fields LogFields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Error(args...)
 }
 
-// Warning logs warning level message
+// Warning logs warning level message.
 func (logger LogrusLogger) Warning(args ...interface{}) {
 	log.Warning(args...)
 }
 
-// WarningWithFields logs warning level message with custom fields
+// WarningWithFields logs warning level message with custom fields.
 func (logger LogrusLogger) WarningWithFields(fields LogFields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Warning(args...)
 }
 
-// Info logs info level message
+// Info logs info level message.
 func (logger LogrusLogger) Info(args ...interface{}) {
 	log.Info(args...)
 }
 
-// InfoWithFields logs info level message with custom fields
+// InfoWithFields logs info level message with custom fields.
 func (logger LogrusLogger) InfoWithFields(fields LogFields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Info(args...)
 }
 
-// Debug logs debug level message
+// Debug logs debug level message.
 func (logger LogrusLogger) Debug(args ...interface{}) {
 	log.Debug(args...)
 }
 
-// DebugWithFields log debug level message with custom fields
+// DebugWithFields log debug level message with custom fields.
 func (logger LogrusLogger) DebugWithFields(fields LogFields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Debug(args...)
 }
 
-// SetLogLevel sets logging level
+// SetLogLevel sets logging level.
 func (logger LogrusLogger) SetLogLevel(level LogLevel) {
 	log.SetLevel(log.DebugLevel)
 }

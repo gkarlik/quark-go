@@ -11,35 +11,37 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Credentials represents user credentials
+// Credentials represents user credentials (username and password).
 type Credentials struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username"` // user name
+	Password string `json:"password"` // password
 }
 
-// Claims represents user claims
+// Claims represents jwt claims.
 type Claims struct {
-	Username   string                 `json:"username"`
-	Properties map[string]interface{} `json:"properties"`
+	Username   string                 `json:"username"`   // user name
+	Properties map[string]interface{} `json:"properties"` // additional jwt claims properties
 
-	jwt.StandardClaims
+	jwt.StandardClaims // standard jwt claims properties
 }
 
 const componentName = "JwtAuthenticationMiddleware"
 
-// AuthenticationMiddleware represents HTTP middleware responsible for authentication (JWT based)
+// AuthenticationMiddleware represents HTTP middleware responsible for authentication (JWT based).
 type AuthenticationMiddleware struct {
-	Options Options
+	Options Options // authentication middleware options
 }
 
-// AuthenticationFunc is a function used to authenticate user
+// AuthenticationFunc is a function used to authenticate user. Function receives user credentials and should return claims or an error.
 type AuthenticationFunc func(credentials Credentials) (Claims, error)
 
-// NewAuthenticationMiddleware creates instance of authentication middleware
+// NewAuthenticationMiddleware creates instance of authentication middleware with options passed as argument.
+// AuthenticationFunc and Secret options are required.
+// Default context key value used to store jwt claims in request context is "Claims".
 func NewAuthenticationMiddleware(opts ...Option) *AuthenticationMiddleware {
 	am := &AuthenticationMiddleware{
 		Options: Options{
-			ContextKey: "Token_Claims",
+			ContextKey: "Claims",
 		},
 	}
 
@@ -58,7 +60,7 @@ func NewAuthenticationMiddleware(opts ...Option) *AuthenticationMiddleware {
 	return am
 }
 
-// Authenticate validates token using JWT mechanism
+// Authenticate validates token using jwt specification. It parses token from 'Authorization' header which must be in form "bearer token".
 func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// parse token from Authorization header
@@ -114,7 +116,7 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 	})
 }
 
-// GenerateToken generates token using JWT mechanism, only HTTP POST method is allowed
+// GenerateToken generates token using jwt specification, only HTTP POST method is allowed.
 func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.Request) {
 	// check if method is POST
 	if r.Method != http.MethodPost {
@@ -154,7 +156,6 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(am.Options.Secret))
 	if err != nil {
-		// this code probably won't be execute - don't know how to test it
 		logger.Log().ErrorWithFields(logger.LogFields{
 			"error":     err,
 			"component": componentName,

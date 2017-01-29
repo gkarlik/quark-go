@@ -30,7 +30,8 @@ func GetEnvVar(key string) string {
 	return v
 }
 
-// GetHostAddress return host and port address on which service is hosted
+// GetHostAddress returns host address and optionally port on which service is hosted.
+// If port is 0 only address is returned.
 func GetHostAddress(port int) (*url.URL, error) {
 	ip, err := getLocalIPAddress()
 	if err != nil {
@@ -82,7 +83,7 @@ func getLocalIPAddress() (string, error) {
 	return "", errors.New("Network not available")
 }
 
-// ReportServiceValue sends metric with name and value using service Metrics
+// ReportServiceValue sends metric with name and value using service instance.
 func ReportServiceValue(s Service, name string, value interface{}) error {
 	m := metrics.Metric{
 		Name: name,
@@ -94,7 +95,7 @@ func ReportServiceValue(s Service, name string, value interface{}) error {
 	return s.Metrics().Report(m)
 }
 
-// CallHTTPService calls http service at specified url with http method and body
+// CallHTTPService calls HTTP service at specified url with HTTP method and body.
 func CallHTTPService(s Service, method string, url string, body io.Reader, parent trace.Span) ([]byte, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
@@ -119,12 +120,12 @@ func CallHTTPService(s Service, method string, url string, body io.Reader, paren
 	return data, nil
 }
 
-// RPCMetadataCarrier represents carrier for span propagation using gRPC metadata
+// RPCMetadataCarrier represents carrier for span propagation using gRPC metadata.
 type RPCMetadataCarrier struct {
-	MD *metadata.MD
+	MD *metadata.MD // gRPC metadata
 }
 
-// Set sets metadata value inside gRPC metadata
+// Set sets metadata value inside gRPC metadata.
 func (c RPCMetadataCarrier) Set(key, val string) {
 	k := strings.ToLower(key)
 	if strings.HasSuffix(k, "-bin") {
@@ -134,7 +135,7 @@ func (c RPCMetadataCarrier) Set(key, val string) {
 	(*c.MD)[k] = append((*c.MD)[k], val)
 }
 
-// ForeachKey iterates over gRPC metadata key and values
+// ForeachKey iterates over gRPC metadata key and values.
 func (c RPCMetadataCarrier) ForeachKey(handler func(key, val string) error) error {
 	for k, vals := range *c.MD {
 		for _, v := range vals {
@@ -146,7 +147,7 @@ func (c RPCMetadataCarrier) ForeachKey(handler func(key, val string) error) erro
 	return nil
 }
 
-// StartRPCSpan starts span with name and parent span taken from RPC context
+// StartRPCSpan starts span with name and parent span taken from RPC context.
 func StartRPCSpan(s Service, name string, ctx context.Context) trace.Span {
 	var span trace.Span
 	var err error

@@ -19,7 +19,7 @@ func TestLogrusLogger(t *testing.T) {
 		l.PanicWithFields(logger.LogFields{"panic": true}, "Test panic")
 	})
 
-	// it's hard to test fatal behavior
+	// it's hard to test fatal behavior - skipping for now
 	// l.Fatal("Test fatal")
 	// l.FatalWithFields(logger.LogFields{"fatal": true}, "Test fatal")
 

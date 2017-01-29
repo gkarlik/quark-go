@@ -6,16 +6,17 @@ import (
 	"github.com/gkarlik/quark-go/system"
 )
 
-// Metric represents metric created by the service
+// Metric represents metric collected by the service
 type Metric struct {
-	Date   time.Time
-	Name   string
-	Values map[string]interface{}
-	Tags   map[string]string
+	Date   time.Time              // metric date - default: time.Now()
+	Name   string                 // metric name
+	Values map[string]interface{} // metric values
+	Tags   map[string]string      // metric tags
 }
 
-// Reporter represents metrics reporter mechanism
+// Reporter represents metrics reporter mechanism.
 type Reporter interface {
 	Report(ms ...Metric) error
+
 	system.Disposer
 }

@@ -4,10 +4,10 @@ import (
 	"net/url"
 )
 
-// Info represents information about service
+// Info represents information about service.
 type Info struct {
-	Name    string
-	Version string
-	Tags    []string
-	Address *url.URL
+	Name    string   // service name
+	Version string   // service version
+	Tags    []string // service tags
+	Address *url.URL // service address
 }

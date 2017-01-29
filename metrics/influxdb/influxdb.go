@@ -11,45 +11,47 @@ import (
 
 const componentName = "InfluxDBMetricsReporter"
 
-// MetricsReporter represents kpi reporting mechanism based on InfluxDB
+// MetricsReporter represents metrics collecting mechanism based on InfluxDB.
 type MetricsReporter struct {
-	Client  client.Client
-	Options Options
+	Client  client.Client // InfluxDB client
+	Options Options       // options
 }
 
-// Option represents function which is used to set metrics reporter options
+// Option represents function which is used to apply metrics reporter options.
 type Option func(*Options)
 
-// Options represents cofiguration options for metrics reporter
+// Options represents cofiguration options for metrics reporter.
 type Options struct {
-	Address  string
-	Username string
-	Password string
-	Database string
+	Address  string // InfluxDB database address
+	Username string // InfluxDB database user name
+	Password string // InfluxDB database password
+	Database string // InfluxDB database name
 }
 
-// Database allows to set database name
+// Database allows to set database name.
 func Database(database string) Option {
 	return func(o *Options) {
 		o.Database = database
 	}
 }
 
-// Username allows to set database user name
+// Username allows to set database user name.
 func Username(username string) Option {
 	return func(o *Options) {
 		o.Username = username
 	}
 }
 
-// Password allows to set database password
+// Password allows to set database password.
 func Password(password string) Option {
 	return func(o *Options) {
 		o.Password = password
 	}
 }
 
-// NewMetricsReporter creates instance of metrics reported based on influxdb. Panics if cannot create an instance
+// NewMetricsReporter creates instance of metrics reporter based on InfluxDB.
+// It connects to provided address and sets connection using options passed as arguments.
+// Panics if cannot create an instance.
 func NewMetricsReporter(address string, opts ...Option) *MetricsReporter {
 	options := new(Options)
 	for _, o := range opts {
@@ -86,7 +88,7 @@ func NewMetricsReporter(address string, opts ...Option) *MetricsReporter {
 	}
 }
 
-// Report send metrics to InfluxDB
+// Report sends metrics to InfluxDB database.
 func (r MetricsReporter) Report(ms ...metrics.Metric) error {
 	if ms == nil || len(ms) == 0 {
 		return errors.New("Metrics array cannot be nil or empty")
@@ -140,7 +142,7 @@ func (r MetricsReporter) Report(ms ...metrics.Metric) error {
 	return nil
 }
 
-// Dispose cleans up MetricsReporter instance
+// Dispose closes InfluxDB client and cleans up MetricsReporter instance.
 func (r MetricsReporter) Dispose() {
 	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing metrics reporter component")
 

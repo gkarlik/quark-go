@@ -1,30 +1,30 @@
 package jwt
 
-// Option represents function which is used to set authentication options
+// Option represents function which is used to apply authentication options.
 type Option func(*Options)
 
-// Options represents authentication options
+// Options represents possible authentication options.
 type Options struct {
-	Authenticate AuthenticationFunc
-	Secret       string
-	ContextKey   string
+	Authenticate AuthenticationFunc // function used to authenticate user
+	Secret       string             // string used to encrypt/decrypt token
+	ContextKey   string             // key in request context where claims are stored
 }
 
-// WithAuthenticationFunc allows to function used to authenticate user
+// WithAuthenticationFunc allows to set function used to authenticate user.
 func WithAuthenticationFunc(f AuthenticationFunc) Option {
 	return func(opts *Options) {
 		opts.Authenticate = f
 	}
 }
 
-// WithSecret allows to set secret
+// WithSecret allows to set secret string to ecrypt/decrypt token.
 func WithSecret(secret string) Option {
 	return func(opts *Options) {
 		opts.Secret = secret
 	}
 }
 
-// WithContextKey allows to set key in request context which will be used to store token claims
+// WithContextKey allows to set key in request context which is used to store claims.
 func WithContextKey(key string) Option {
 	return func(opts *Options) {
 		opts.ContextKey = key

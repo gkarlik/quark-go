@@ -13,19 +13,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAuthenticationMiddleware(t *testing.T) {
+func TestAuthenticationMiddlewareOptions(t *testing.T) {
 	assert.Panics(t, func() {
-		var _ = jwt.NewAuthenticationMiddleware()
+		jwt.NewAuthenticationMiddleware()
 	})
 
 	assert.Panics(t, func() {
-		var _ = jwt.NewAuthenticationMiddleware(jwt.WithAuthenticationFunc(func(c jwt.Credentials) (jwt.Claims, error) {
+		jwt.NewAuthenticationMiddleware(jwt.WithAuthenticationFunc(func(c jwt.Credentials) (jwt.Claims, error) {
 			return jwt.Claims{}, nil
 		}))
 	})
 
 	assert.Panics(t, func() {
-		var _ = jwt.NewAuthenticationMiddleware(jwt.WithSecret("secret"))
+		jwt.NewAuthenticationMiddleware(jwt.WithSecret("secret"))
 	})
 
 	am := jwt.NewAuthenticationMiddleware(jwt.WithAuthenticationFunc(func(c jwt.Credentials) (jwt.Claims, error) {
@@ -61,7 +61,7 @@ func TestGenerateTokenMethod(t *testing.T) {
 func TestGenerateTokenInvalidCredentials(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	c := "wrong json payload"
+	c := "invalid json payload"
 	r, _ := http.NewRequest(http.MethodPost, "/generateToken", strings.NewReader(c))
 
 	am.GenerateToken(w, r)
@@ -74,7 +74,7 @@ func TestGenerateTokenWrongCredentials(t *testing.T) {
 
 	c := jwt.Credentials{
 		Username: "test",
-		Password: "wrong",
+		Password: "wrong_password",
 	}
 
 	payload, _ := json.Marshal(c)

@@ -10,32 +10,33 @@ import (
 	"github.com/gkarlik/quark-go/system"
 )
 
-// Service represents service instance
+// Service represents service instance.
 type Service interface {
-	Info() service.Info
-	Options() Options
-	Log() logger.Logger
-	Discovery() discovery.ServiceDiscovery
-	Broker() broker.MessageBroker
-	Metrics() metrics.Reporter
-	Tracer() trace.Tracer
+	Info() service.Info                    // service metadata
+	Options() Options                      // service options
+	Log() logger.Logger                    // service logger
+	Discovery() discovery.ServiceDiscovery // service discovery
+	Broker() broker.MessageBroker          // service message broker
+	Metrics() metrics.Reporter             // service metrics collector
+	Tracer() trace.Tracer                  // service request tracer
 
 	system.Disposer
 }
 
-// RPCService represents service which exposes procedures that could be called remotelly
+// RPCService represents service which exposes procedures that could be called remotelly.
 type RPCService interface {
 	Service
 
 	RegisterServiceInstance(server interface{}, serviceInstance interface{}) error
 }
 
-// ServiceBase is base structure for custom service
+// ServiceBase is base structure for custom service.
 type ServiceBase struct {
-	options Options
+	options Options // options
 }
 
-// NewService creates instance of service
+// NewService creates instance of service with options passed as arguments.
+// Service name, version and address are required options.
 func NewService(opts ...Option) *ServiceBase {
 	s := &ServiceBase{
 		options: Options{
@@ -63,42 +64,42 @@ func NewService(opts ...Option) *ServiceBase {
 	return s
 }
 
-// Info gets service information metadata
+// Info gets service metadata information.
 func (sb ServiceBase) Info() service.Info {
 	return sb.options.Info
 }
 
-// Metrics gets service metrics reporter
+// Metrics gets service metrics collector instance.
 func (sb ServiceBase) Metrics() metrics.Reporter {
 	return sb.options.Metrics
 }
 
-// Tracer gets service tracer
+// Tracer gets service request tracer instance.
 func (sb ServiceBase) Tracer() trace.Tracer {
 	return sb.options.Tracer
 }
 
-// Options gets service options
+// Options gets service options.
 func (sb ServiceBase) Options() Options {
 	return sb.options
 }
 
-// Log gets service logger instance
+// Log gets service logger instance.
 func (sb ServiceBase) Log() logger.Logger {
 	return sb.options.Logger
 }
 
-// Discovery gets service discovery instance for service
+// Discovery gets service discovery instance.
 func (sb ServiceBase) Discovery() discovery.ServiceDiscovery {
 	return sb.options.Discovery
 }
 
-// Broker gets message broker mechanism
+// Broker gets message broker instance.
 func (sb ServiceBase) Broker() broker.MessageBroker {
 	return sb.options.Broker
 }
 
-// Dispose disposes service instance
+// Dispose cleans up service instance.
 func (sb ServiceBase) Dispose() {
 	sb.Log().Info("Disposing service")
 
