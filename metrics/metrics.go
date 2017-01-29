@@ -3,7 +3,7 @@ package metrics
 import (
 	"time"
 
-	"github.com/gkarlik/quark/system"
+	"github.com/gkarlik/quark-go/system"
 )
 
 // Metric represents metric created by the service

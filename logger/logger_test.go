@@ -3,7 +3,7 @@ package logger_test
 import (
 	"testing"
 
-	"github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark-go/logger"
 	"github.com/stretchr/testify/assert"
 )
 

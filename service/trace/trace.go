@@ -1,7 +1,7 @@
 package trace
 
 import (
-	"github.com/gkarlik/quark/system"
+	"github.com/gkarlik/quark-go/system"
 	"golang.org/x/net/context"
 )
 

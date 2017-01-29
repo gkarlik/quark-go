@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gkarlik/quark/auth/jwt"
+	"github.com/gkarlik/quark-go/auth/jwt"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,7 +1,7 @@
 package random_test
 
 import (
-	"github.com/gkarlik/quark/service/loadbalancer/random"
+	"github.com/gkarlik/quark-go/service/loadbalancer/random"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"net/url"

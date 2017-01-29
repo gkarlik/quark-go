@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/gkarlik/quark/broker"
-	cb "github.com/gkarlik/quark/circuitbreaker"
-	"github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark-go/broker"
+	cb "github.com/gkarlik/quark-go/circuitbreaker"
+	"github.com/gkarlik/quark-go/logger"
 	"github.com/streadway/amqp"
 )
 

@@ -1,13 +1,13 @@
 package quark
 
 import (
-	"github.com/gkarlik/quark/broker"
-	"github.com/gkarlik/quark/logger"
-	"github.com/gkarlik/quark/metrics"
-	"github.com/gkarlik/quark/service"
-	"github.com/gkarlik/quark/service/discovery"
-	"github.com/gkarlik/quark/service/trace"
-	"github.com/gkarlik/quark/system"
+	"github.com/gkarlik/quark-go/broker"
+	"github.com/gkarlik/quark-go/logger"
+	"github.com/gkarlik/quark-go/metrics"
+	"github.com/gkarlik/quark-go/service"
+	"github.com/gkarlik/quark-go/service/discovery"
+	"github.com/gkarlik/quark-go/service/trace"
+	"github.com/gkarlik/quark-go/system"
 )
 
 // Service represents service instance

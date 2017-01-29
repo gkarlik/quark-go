@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/gkarlik/quark"
-	rpc "github.com/gkarlik/quark/service/rpc/grpc"
-	proxy "github.com/gkarlik/quark/service/rpc/grpc/test"
+	"github.com/gkarlik/quark-go"
+	rpc "github.com/gkarlik/quark-go/service/rpc/grpc"
+	proxy "github.com/gkarlik/quark-go/service/rpc/grpc/test"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

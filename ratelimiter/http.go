@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark-go/logger"
 	"golang.org/x/time/rate"
 )
 

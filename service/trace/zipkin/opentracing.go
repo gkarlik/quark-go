@@ -3,9 +3,9 @@ package zipkin
 import (
 	"net/url"
 
-	cb "github.com/gkarlik/quark/circuitbreaker"
-	"github.com/gkarlik/quark/logger"
-	"github.com/gkarlik/quark/service/trace"
+	cb "github.com/gkarlik/quark-go/circuitbreaker"
+	"github.com/gkarlik/quark-go/logger"
+	"github.com/gkarlik/quark-go/service/trace"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"

@@ -1,7 +1,7 @@
 package rpc
 
 import (
-	"github.com/gkarlik/quark"
+	"github.com/gkarlik/quark-go"
 )
 
 // RPC represents Remote Procedure Call mechanism

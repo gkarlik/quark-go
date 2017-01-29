@@ -1,6 +1,7 @@
 package quark
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -9,10 +10,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
-	"github.com/gkarlik/quark/metrics"
-	"github.com/gkarlik/quark/service/trace"
+	"google.golang.org/grpc/metadata"
+
+	"github.com/gkarlik/quark-go/metrics"
+	"github.com/gkarlik/quark-go/service/trace"
 	opentracing "github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
 )
@@ -81,7 +85,7 @@ func getLocalIPAddress() (string, error) {
 // ReportServiceValue sends metric with name and value using service Metrics
 func ReportServiceValue(s Service, name string, value interface{}) error {
 	m := metrics.Metric{
-		Name: "response_time",
+		Name: name,
 		Tags: map[string]string{"service": s.Info().Name},
 		Values: map[string]interface{}{
 			"value": value,
@@ -115,15 +119,46 @@ func CallHTTPService(s Service, method string, url string, body io.Reader, paren
 	return data, nil
 }
 
+// RPCMetadataCarrier represents carrier for span propagation using gRPC metadata
+type RPCMetadataCarrier struct {
+	MD *metadata.MD
+}
+
+// Set sets metadata value inside gRPC metadata
+func (c RPCMetadataCarrier) Set(key, val string) {
+	k := strings.ToLower(key)
+	if strings.HasSuffix(k, "-bin") {
+		val = string(base64.StdEncoding.EncodeToString([]byte(val)))
+	}
+
+	(*c.MD)[k] = append((*c.MD)[k], val)
+}
+
+// ForeachKey iterates over gRPC metadata key and values
+func (c RPCMetadataCarrier) ForeachKey(handler func(key, val string) error) error {
+	for k, vals := range *c.MD {
+		for _, v := range vals {
+			if err := handler(k, v); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // StartRPCSpan starts span with name and parent span taken from RPC context
 func StartRPCSpan(s Service, name string, ctx context.Context) trace.Span {
 	var span trace.Span
+	var err error
 
-	sp := s.Tracer().SpanFromContext(ctx)
-	if sp != nil {
-		span = s.Tracer().StartSpanWithParent(name, sp)
-	} else {
+	md, ok := metadata.FromContext(ctx)
+	if ok {
+		span, err = s.Tracer().ExtractSpan(name, opentracing.TextMap, RPCMetadataCarrier{MD: &md})
+	}
+
+	if err != nil || !ok {
 		span = s.Tracer().StartSpan(name)
 	}
+
 	return span
 }

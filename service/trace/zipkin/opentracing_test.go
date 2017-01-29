@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/gkarlik/quark/service/trace/zipkin"
+	"github.com/gkarlik/quark-go/service/trace/zipkin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"

@@ -1,7 +1,7 @@
 package discovery
 
 import (
-	"github.com/gkarlik/quark/system"
+	"github.com/gkarlik/quark-go/system"
 	"net/url"
 )
 

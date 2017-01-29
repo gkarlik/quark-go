@@ -12,6 +12,6 @@ RUN go get google.golang.org/grpc
 RUN go get github.com/opentracing/opentracing-go
 RUN go get github.com/openzipkin/zipkin-go-opentracing
 
-COPY . /go/src/github.com/gkarlik/quark
+COPY . /go/src/github.com/gkarlik/quark-go
 
 ENTRYPOINT /bin/bash

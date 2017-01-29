@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/gkarlik/quark/logger"
-	"github.com/gkarlik/quark/metrics"
+	"github.com/gkarlik/quark-go/logger"
+	"github.com/gkarlik/quark-go/metrics"
 	"github.com/influxdata/influxdb/client/v2"
 )
 

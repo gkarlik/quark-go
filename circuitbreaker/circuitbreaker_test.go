@@ -2,7 +2,7 @@ package circuitbreaker_test
 
 import (
 	"errors"
-	"github.com/gkarlik/quark/circuitbreaker"
+	"github.com/gkarlik/quark-go/circuitbreaker"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

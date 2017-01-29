@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/gkarlik/quark/logger"
-	"github.com/gkarlik/quark/service/discovery"
+	"github.com/gkarlik/quark-go/logger"
+	"github.com/gkarlik/quark-go/service/discovery"
 	"github.com/hashicorp/consul/api"
 )
 

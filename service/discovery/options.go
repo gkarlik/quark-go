@@ -1,8 +1,8 @@
 package discovery
 
 import (
-	"github.com/gkarlik/quark/service"
-	lb "github.com/gkarlik/quark/service/loadbalancer"
+	"github.com/gkarlik/quark-go/service"
+	lb "github.com/gkarlik/quark-go/service/loadbalancer"
 )
 
 // Option represents function which is used to set service discovery options

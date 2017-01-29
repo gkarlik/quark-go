@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gkarlik/quark/metrics"
-	"github.com/gkarlik/quark/metrics/influxdb"
+	"github.com/gkarlik/quark-go/metrics"
+	"github.com/gkarlik/quark-go/metrics/influxdb"
 	"github.com/stretchr/testify/assert"
 )
 

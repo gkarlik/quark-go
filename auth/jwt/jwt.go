@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark-go/logger"
 	"golang.org/x/net/context"
 )
 

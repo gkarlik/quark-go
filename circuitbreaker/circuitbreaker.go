@@ -3,7 +3,7 @@ package circuitbreaker
 import (
 	"time"
 
-	"github.com/gkarlik/quark/logger"
+	"github.com/gkarlik/quark-go/logger"
 )
 
 // CircuitBreaker represents Circuit Breaker pattern mechanism

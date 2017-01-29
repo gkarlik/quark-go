@@ -1,7 +1,7 @@
 package broker
 
 import (
-	"github.com/gkarlik/quark/system"
+	"github.com/gkarlik/quark-go/system"
 )
 
 // Message represents structure which will be passed to message bus

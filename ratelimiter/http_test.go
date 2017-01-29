@@ -1,7 +1,7 @@
 package ratelimiter_test
 
 import (
-	"github.com/gkarlik/quark/ratelimiter"
+	"github.com/gkarlik/quark-go/ratelimiter"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
