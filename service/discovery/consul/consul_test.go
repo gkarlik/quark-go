@@ -4,17 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"reflect"
+	"testing"
+
 	"github.com/gkarlik/quark-go/service"
 	"github.com/gkarlik/quark-go/service/discovery"
 	"github.com/gkarlik/quark-go/service/discovery/consul"
 	"github.com/gkarlik/quark-go/service/loadbalancer/random"
 	"github.com/hashicorp/consul/api"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"strings"
-	"testing"
 )
 
 type HttpTransportMock struct {
@@ -42,8 +43,7 @@ func NewConsulClient(t *HttpTransportMock) *consul.ServiceDiscovery {
 	})
 
 	return &consul.ServiceDiscovery{
-		Address: addr,
-		Client:  c,
+		Client: c,
 	}
 }
 
@@ -51,7 +51,10 @@ func TestNewServiceDiscovery(t *testing.T) {
 	c := consul.NewServiceDiscovery("http://consul:8080/")
 	defer c.Dispose()
 
-	assert.Equal(t, "http://consul:8080/", c.Address)
+	config := reflect.Indirect(reflect.ValueOf(c.Client)).FieldByName("config")
+	addr := config.FieldByName("Address")
+
+	assert.Equal(t, "http://consul:8080/", addr.String())
 }
 
 func TestRegisterService(t *testing.T) {
@@ -94,12 +97,7 @@ func TestDeregisterService(t *testing.T) {
 	err := c.DeregisterService(discovery.ByName(name))
 
 	assert.NoError(t, err, "RegisterService returns an error")
-
-	// last segment in request url is id of the service
-	s := strings.Split(m.Request.URL.Path, "/")
-	id := s[len(s)-1]
-
-	assert.Equal(t, name, id)
+	assert.Equal(t, "/v1/agent/service/deregister/ServiceID", m.Request.URL.Path)
 }
 
 func TestGetServiceAddress(t *testing.T) {
@@ -133,17 +131,8 @@ func TestGetServiceAddress(t *testing.T) {
 
 	assert.NoError(t, err, "RegisterService returns an error")
 	assert.Equal(t, addr, a.String())
-
-	// last segment in request url is id of the service
-	u := strings.Split(m.Request.URL.Path, "/")
-	id := u[len(u)-1]
-
-	// skip query parameters
-	u = strings.Split(id, "?")
-	assert.Equal(t, name, u[0])
-
-	p := m.Request.URL.Query()
-	assert.Equal(t, tag, p["tag"][0])
+	assert.Equal(t, "/v1/health/service/ServiceID", m.Request.URL.Path)
+	assert.Equal(t, tag, m.Request.URL.Query()["tag"][0])
 }
 
 func TestGetServiceAddressWithoutTag(t *testing.T) {
@@ -175,14 +164,7 @@ func TestGetServiceAddressWithoutTag(t *testing.T) {
 
 	assert.NoError(t, err, "RegisterService returns an error")
 	assert.Equal(t, addr, a.String())
-
-	// last segment in request url is id of the service
-	u := strings.Split(m.Request.URL.Path, "/")
-	id := u[len(u)-1]
-
-	// skip query parameters
-	u = strings.Split(id, "?")
-	assert.Equal(t, name, u[0])
+	assert.Equal(t, "/v1/health/service/ServiceID", m.Request.URL.Path)
 }
 
 func TestGetServiceAddressMissingLBStrategy(t *testing.T) {
@@ -215,17 +197,8 @@ func TestGetServiceAddressMissingLBStrategy(t *testing.T) {
 
 	assert.NoError(t, err, "RegisterService returns an error")
 	assert.Equal(t, addr, a.String())
-
-	// last segment in request url is id of the service
-	u := strings.Split(m.Request.URL.Path, "/")
-	id := u[len(u)-1]
-
-	// skip query parameters
-	u = strings.Split(id, "?")
-	assert.Equal(t, name, u[0])
-
-	p := m.Request.URL.Query()
-	assert.Equal(t, tag, p["tag"][0])
+	assert.Equal(t, "/v1/health/service/ServiceID", m.Request.URL.Path)
+	assert.Equal(t, tag, m.Request.URL.Query()["tag"][0])
 }
 
 func TestGetServiceAddressEmptyServicesList(t *testing.T) {
@@ -245,17 +218,8 @@ func TestGetServiceAddressEmptyServicesList(t *testing.T) {
 
 	assert.NoError(t, err, "RegisterService returns an error")
 	assert.Nil(t, a, "Result should be nil")
-
-	// last segment in request url is id of the service
-	u := strings.Split(m.Request.URL.Path, "/")
-	id := u[len(u)-1]
-
-	// skip query parameters
-	u = strings.Split(id, "?")
-	assert.Equal(t, name, u[0])
-
-	p := m.Request.URL.Query()
-	assert.Equal(t, tag, p["tag"][0])
+	assert.Equal(t, "/v1/health/service/ServiceID", m.Request.URL.Path)
+	assert.Equal(t, tag, m.Request.URL.Query()["tag"][0])
 }
 
 func TestGetServiceAddressError(t *testing.T) {
@@ -275,17 +239,8 @@ func TestGetServiceAddressError(t *testing.T) {
 
 	assert.Error(t, err, "GetServiceAddress should return an error")
 	assert.Nil(t, a, "Result should be nil")
-
-	// last segment in request url is id of the service
-	u := strings.Split(m.Request.URL.Path, "/")
-	id := u[len(u)-1]
-
-	// skip query parameters
-	u = strings.Split(id, "?")
-	assert.Equal(t, name, u[0])
-
-	p := m.Request.URL.Query()
-	assert.Equal(t, tag, p["tag"][0])
+	assert.Equal(t, "/v1/health/service/ServiceID", m.Request.URL.Path)
+	assert.Equal(t, tag, m.Request.URL.Query()["tag"][0])
 }
 
 func prepareResponse(code int, body interface{}) *http.Response {

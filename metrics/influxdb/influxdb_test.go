@@ -109,7 +109,7 @@ func TestMetricsReporterNetworkError(t *testing.T) {
 	assert.Error(t, err, "Report should return an error")
 }
 
-func TestMetricsReporterEmptyDateMetricsArray(t *testing.T) {
+func TestMetricsReporterEmptyDate(t *testing.T) {
 	data := struct {
 		url  string
 		body string

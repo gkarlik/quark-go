@@ -2,6 +2,9 @@ package quark_test
 
 import (
 	"encoding/base64"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"testing"
 
@@ -17,6 +20,8 @@ import (
 	"github.com/gkarlik/quark-go/metrics"
 	"github.com/gkarlik/quark-go/service/discovery"
 	"github.com/gkarlik/quark-go/service/trace"
+	"github.com/gkarlik/quark-go/service/trace/zipkin"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 )
@@ -137,11 +142,11 @@ func TestServiceBase(t *testing.T) {
 
 	addr, _ := quark.GetHostAddress(5678)
 	// address will change on CI server
-	assert.Equal(t, "192.168.1.107:5678", addr.String())
+	assert.Equal(t, "169.254.213.40:5678", addr.String())
 
 	addr, _ = quark.GetHostAddress(0)
 	// address will change on CI server
-	assert.Equal(t, "192.168.1.107", addr.String())
+	assert.Equal(t, "169.254.213.40", addr.String())
 }
 
 func TestLackOfName(t *testing.T) {
@@ -253,4 +258,94 @@ func TestRPCMetadataCarrierError(t *testing.T) {
 	})
 
 	assert.Error(t, err, "ForeachKey should return an error")
+}
+
+type TestMetricRecorder struct {
+	Metric metrics.Metric
+}
+
+func (sm *TestMetricRecorder) Report(m ...metrics.Metric) error {
+	sm.Metric = m[0]
+
+	return nil
+}
+
+func (sm *TestMetricRecorder) Dispose() {}
+
+func TestReportServiceValue(t *testing.T) {
+	a, _ := quark.GetHostAddress(1234)
+
+	metrics := &TestMetricRecorder{}
+
+	ts := &TestService{
+		ServiceBase: quark.NewService(
+			quark.Name("TestService"),
+			quark.Version("1.0"),
+			quark.Address(a),
+			quark.Metrics(metrics)),
+	}
+
+	defer ts.Dispose()
+
+	err := quark.ReportServiceValue(ts, "TestMetric", 1)
+
+	assert.NoError(t, err, "ReportServiceValue returns an error")
+	assert.Equal(t, "TestMetric", metrics.Metric.Name)
+	assert.Equal(t, "TestService", metrics.Metric.Tags["service"])
+	assert.Equal(t, 1, metrics.Metric.Values["value"])
+}
+
+func TestCallHTTPService(t *testing.T) {
+	data := struct {
+		url  string
+		body string
+	}{}
+
+	// trace http server
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+
+		b, _ := ioutil.ReadAll(r.Body)
+
+		data.url = r.URL.String()
+		data.body = string(b)
+	}))
+
+	a, _ := quark.GetHostAddress(1234)
+	tracer := zipkin.NewTracer(ts.URL, "TestService", a)
+
+	s := &TestService{
+		ServiceBase: quark.NewService(
+			quark.Name("TestService"),
+			quark.Version("1.0"),
+			quark.Address(a),
+			quark.Tracer(tracer)),
+	}
+
+	// service http server
+	hs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+
+		span, err := tracer.ExtractSpan("extracted_span", opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))
+		assert.NoError(t, err, "ExtractSpan return an error")
+
+		span.Finish()
+	}))
+	defer func() {
+		hs.Close()
+		ts.Close()
+		s.Dispose()
+	}()
+
+	span := tracer.StartSpan("root_span")
+	_, err := quark.CallHTTPService(s, "GET", hs.URL, nil, span)
+
+	assert.NoError(t, err, "CallHTTPService returns an error")
+
+	span.Finish()
+
+	tracer.Dispose()
+
+	assert.Contains(t, data.body, "root_span")
+	assert.Contains(t, data.body, "extracted_span")
 }

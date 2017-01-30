@@ -12,13 +12,13 @@ import (
 
 const componentName = "ConsulServiceDiscovery"
 
-// ServiceDiscovery represents service discovery mechanism based on Consul by Hashicorp
+// ServiceDiscovery represents service discovery mechanism based on Consul by Hashicorp.
 type ServiceDiscovery struct {
-	Address string
-	Client  *api.Client
+	Client *api.Client // consul client
 }
 
-// NewServiceDiscovery creates service registration and localization based on Consul by Hashicorp. Panics if cannot create an instance
+// NewServiceDiscovery creates service registration and localization based on Consul by Hashicorp.
+// Panics if cannot create an instance.
 func NewServiceDiscovery(address string) *ServiceDiscovery {
 	c, err := api.NewClient(&api.Config{
 		Address: address,
@@ -33,12 +33,11 @@ func NewServiceDiscovery(address string) *ServiceDiscovery {
 	}
 
 	return &ServiceDiscovery{
-		Address: address,
-		Client:  c,
+		Client: c,
 	}
 }
 
-// RegisterService registers service in service discovery catalog
+// RegisterService registers service in service discovery catalog.
 func (c ServiceDiscovery) RegisterService(options ...discovery.Option) error {
 	opts := new(discovery.Options)
 	for _, o := range options {
@@ -68,7 +67,7 @@ func (c ServiceDiscovery) RegisterService(options ...discovery.Option) error {
 	})
 }
 
-// DeregisterService unregisters service in service discovery catalog
+// DeregisterService unregisters service in service discovery catalog.
 func (c ServiceDiscovery) DeregisterService(options ...discovery.Option) error {
 	opts := new(discovery.Options)
 	for _, o := range options {
@@ -83,7 +82,7 @@ func (c ServiceDiscovery) DeregisterService(options ...discovery.Option) error {
 	return c.Client.Agent().ServiceDeregister(opts.Info.Name)
 }
 
-// GetServiceAddress gets service address from service discovery catalog
+// GetServiceAddress gets service address from service discovery catalog.
 func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.URL, error) {
 	opts := new(discovery.Options)
 	for _, o := range options {
@@ -133,7 +132,7 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.U
 	return sa, err
 }
 
-// Dispose cleans up ServiceDiscovery instance
+// Dispose closes consul client and cleans up ServiceDiscovery instance.
 func (c ServiceDiscovery) Dispose() {
 	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing service discovery component")
 

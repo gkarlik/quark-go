@@ -59,11 +59,11 @@ func TestGRPCServer(t *testing.T) {
 	srv.Start(ts)
 }
 
-type WrongRegisterServiceRPCService struct {
+type InvalidRegisterServiceRPCService struct {
 	*quark.ServiceBase
 }
 
-func (s *WrongRegisterServiceRPCService) RegisterServiceInstance(server interface{}, serviceInstance interface{}) error {
+func (s *InvalidRegisterServiceRPCService) RegisterServiceInstance(server interface{}, serviceInstance interface{}) error {
 	return errors.New("Cannot register service")
 }
 
@@ -71,9 +71,9 @@ func TestRegisterService(t *testing.T) {
 	addr, _ := quark.GetHostAddress(1234)
 
 	srv := rpc.NewServer()
-	defer srv.Stop()
+	defer srv.Dispose()
 
-	ws := &WrongRegisterServiceRPCService{
+	ws := &InvalidRegisterServiceRPCService{
 		ServiceBase: quark.NewService(
 			quark.Name("TestService"),
 			quark.Version("1.0"),

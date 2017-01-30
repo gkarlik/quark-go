@@ -14,12 +14,12 @@ import (
 
 const componentName = "ZipkinTracer"
 
-// Span represents tracing span based on opentracing zipkin framework
+// Span represents tracing span based on opentracing zipkin framework.
 type Span struct {
-	RawSpan opentracing.Span
+	RawSpan opentracing.Span // opentracing span
 }
 
-// LogWithFields logs span with event name and fields
+// LogWithFields logs tracing span with event name and fields.
 func (s Span) LogWithFields(event string, params map[string]interface{}) {
 	s.RawSpan.LogEvent(event)
 
@@ -31,27 +31,29 @@ func (s Span) LogWithFields(event string, params map[string]interface{}) {
 	s.RawSpan.LogFields(fields...)
 }
 
-// Log logs span event
+// Log logs tracing span event.
 func (s Span) Log(event string) {
 	s.RawSpan.LogEvent(event)
 }
 
-// SetTag sets tag on span
+// SetTag sets tag on tracing span.
 func (s Span) SetTag(key string, value interface{}) {
 	s.RawSpan.SetTag(key, value)
 }
 
-// Finish stops tracing span
+// Finish stops tracing span.
 func (s Span) Finish() {
 	s.RawSpan.Finish()
 }
 
-// Tracer represents tracing mechanism based on opentracing zipkin framework
+// Tracer represents tracing mechanism based on opentracing zipkin framework.
 type Tracer struct {
-	collector zipkin.Collector
+	Collector zipkin.Collector // zipkin collector
 }
 
-// NewTracer creates an instance of tracer based on opentracing zipkin framework. Panics if cannot connect to collector or cannot create zipkin instance.
+// NewTracer creates an instance of tracer based on opentracing zipkin framework.
+// Additional options passed as arguments are used to configure circuit breaker pattern to connect to zipkin instance.
+// Panics if cannot connect to collector or cannot create zipkin instance.
 func NewTracer(address string, serviceName string, serviceAddress *url.URL, opts ...cb.Option) trace.Tracer {
 	collector, err := new(cb.DefaultCircuitBreaker).Execute(func() (interface{}, error) {
 		return zipkin.NewHTTPCollector(address)
@@ -78,11 +80,11 @@ func NewTracer(address string, serviceName string, serviceAddress *url.URL, opts
 	opentracing.SetGlobalTracer(tracer)
 
 	return &Tracer{
-		collector: c,
+		Collector: c,
 	}
 }
 
-// StartSpan starts span with name
+// StartSpan starts tracing span with name.
 func (t Tracer) StartSpan(name string) trace.Span {
 	s := opentracing.StartSpan(name)
 
@@ -91,7 +93,7 @@ func (t Tracer) StartSpan(name string) trace.Span {
 	}
 }
 
-// StartSpanFromContext starts span from context with name
+// StartSpanFromContext starts tracing span with name from context.
 func (t Tracer) StartSpanFromContext(name string, ctx context.Context) (trace.Span, context.Context) {
 	s, c := opentracing.StartSpanFromContext(ctx, name)
 
@@ -104,7 +106,7 @@ func (t Tracer) StartSpanFromContext(name string, ctx context.Context) (trace.Sp
 	}, c
 }
 
-// StartSpanWithParent starts span with parent span and name
+// StartSpanWithParent starts tracing span with parent span and name.
 func (t Tracer) StartSpanWithParent(name string, parent trace.Span) trace.Span {
 	ps := assertSpanType(parent)
 	s := opentracing.StartSpan(name, opentracing.ChildOf(ps.RawSpan.Context()))
@@ -118,7 +120,7 @@ func (t Tracer) StartSpanWithParent(name string, parent trace.Span) trace.Span {
 	}
 }
 
-// SpanFromContext creates span from context
+// SpanFromContext creates tracing span from context.
 func (t Tracer) SpanFromContext(ctx context.Context) trace.Span {
 	s := opentracing.SpanFromContext(ctx)
 
@@ -131,14 +133,14 @@ func (t Tracer) SpanFromContext(ctx context.Context) trace.Span {
 	}
 }
 
-// ContextWithSpan creates context with span
+// ContextWithSpan creates context with tracing span.
 func (t Tracer) ContextWithSpan(ctx context.Context, span trace.Span) context.Context {
 	s := assertSpanType(span)
 
 	return opentracing.ContextWithSpan(ctx, s.RawSpan)
 }
 
-// InjectSpan injects span in particular format to carrier
+// InjectSpan injects tracing span in particular format to carrier.
 func (t Tracer) InjectSpan(s trace.Span, format interface{}, carrier interface{}) error {
 	span := assertSpanType(s)
 	tracer := opentracing.GlobalTracer()
@@ -146,7 +148,7 @@ func (t Tracer) InjectSpan(s trace.Span, format interface{}, carrier interface{}
 	return tracer.Inject(span.RawSpan.Context(), format, carrier)
 }
 
-// ExtractSpan extracts span in particular format from carrier and starts it with name and extracted span as a parent
+// ExtractSpan extracts tracing span in particular format from carrier and starts new tracing span with name and extracted span as a parent.
 func (t Tracer) ExtractSpan(name string, format interface{}, carrier interface{}) (trace.Span, error) {
 	var s opentracing.Span
 
@@ -168,13 +170,13 @@ func (t Tracer) ExtractSpan(name string, format interface{}, carrier interface{}
 	}, err
 }
 
-// Dispose cleans up tracer instance
+// Dispose closes zipkin collector and cleans up tracer instance.
 func (t Tracer) Dispose() {
 	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing tracer component")
 
-	if t.collector != nil {
-		t.collector.Close()
-		t.collector = nil
+	if t.Collector != nil {
+		t.Collector.Close()
+		t.Collector = nil
 	}
 }
 

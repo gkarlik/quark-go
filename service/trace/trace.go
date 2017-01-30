@@ -5,7 +5,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Tracer represents tracing mechanism
+// Tracer represents request tracing mechanism.
 type Tracer interface {
 	StartSpan(name string) Span
 	StartSpanFromContext(name string, ctx context.Context) (Span, context.Context)
@@ -18,7 +18,7 @@ type Tracer interface {
 	system.Disposer
 }
 
-// Span represents tracing span
+// Span represents request tracing span.
 type Span interface {
 	SetTag(key string, value interface{})
 	Log(event string)

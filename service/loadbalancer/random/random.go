@@ -7,19 +7,19 @@ import (
 	"time"
 )
 
-// LoadBalancingStrategy represents Random Load Balancing mechanism
+// LoadBalancingStrategy represents Random Load Balancing mechanism.
 type LoadBalancingStrategy struct {
-	Randomizer *rand.Rand
+	Randomizer *rand.Rand // randomizer
 }
 
-// NewRandomLBStrategy creates random load balancing mechanism
+// NewRandomLBStrategy creates random load balancing strategy instance.
 func NewRandomLBStrategy() *LoadBalancingStrategy {
 	return &LoadBalancingStrategy{
 		Randomizer: rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 }
 
-// PickServiceAddress randomly picks service address from list of adresses
+// PickServiceAddress randomly picks service address from list of adresses.
 func (s LoadBalancingStrategy) PickServiceAddress(sa []*url.URL) (*url.URL, error) {
 	l := len(sa)
 	if l == 0 {
