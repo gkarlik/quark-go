@@ -21,7 +21,7 @@ func ByInfo(i service.Info) Option {
 	}
 }
 
-// WithInfo allows to registed service by its info metadata.
+// WithInfo allows to register service by its info metadata.
 func WithInfo(i service.Info) Option {
 	return ByInfo(i)
 }
@@ -40,7 +40,7 @@ func ByTag(tag string) Option {
 	}
 }
 
-// UsingLBStrategy allows to discover service using specified load balancing startegy.
+// UsingLBStrategy allows to discover service using specified load balancing strategy.
 func UsingLBStrategy(s lb.LoadBalancingStrategy) Option {
 	return func(opts *Options) {
 		opts.Strategy = s

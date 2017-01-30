@@ -23,7 +23,7 @@ type Service interface {
 	system.Disposer
 }
 
-// RPCService represents service which exposes procedures that could be called remotelly.
+// RPCService represents service which exposes procedures that could be called remotely.
 type RPCService interface {
 	Service
 
