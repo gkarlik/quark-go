@@ -1,0 +1,23 @@
+language: 
+  - go
+
+go:
+  - 1.7.x
+
+install: 
+  - go get -t ./...
+  - go get golang.org/x/tools/cmd/cover 
+  # - go get github.com/mattn/goveralls
+  - git clone -b multiple-packages https://github.com/haya14busa/goveralls $GOPATH/src/github.com/haya14busa/goveralls
+  - cd $GOPATH/src/github.com/haya14busa/goveralls
+  - go get -d -v -t ./...
+  - go install
+  - cd -
+
+script: 
+  - go test -v ./...
+  - $HOME/gopath/bin/goveralls -service=travis-ci -repotoken $COVERALLS_TOKEN
+
+env:
+  global:
+    secure: DTqpaSdH35sHFubZr/czINlVoJiRsHTSKLnp6eZlWk5cgUFGIv86y6bIGS3JWTBBmWvf7BYFWWYls/9dcUV2sLwlOqViav7NLQIA2PDsBIIX3YoVgGfZbCAv97Xfmy3qw7rfcPeGJIrKe0RJpmnNzmCbTPvxaaLpLoTM6d2vAsh5Mc+XtYMFs5nm35MAs3631YpL0OZCnx9n8dYavaUjlCCUH1L03z8BS+mOVI6Dw3U/KAYfgTEr+hX/OOfVwVHtJj6wxUvWrLs7sySbFhhrBYD5hRU+Iv5vvL8tNOtUEjNqbcHyhwCDfW3Cgz1Ud21PpE+7ZefQaHBt0IAGj7NDOZwdjjl1J2quajGVGMLGhUbDXbewwYgn8USFykHD9v2E40l7Xgg/aXBNGNa5E0WFsnTz3h1ve1PPfTodvGBeo+9qhiOEbU+2Ts0dQf/beCZ6FH4bF4zdFFE8LQ2fnbe4tBmuraz2alVPN95XWjjtDBeLfQ0Boyz32Q8C/0qWrgizlRkXSJrygKzEnyTn8l1flvefoagUFna6qiDsIdRjsy/iCY18XpeIs5ta9qOSMS1nU6bZiyD9ANcuaoCe6KlAfeyT2lAdFfK4oOM3ffNUl+xalZJDzPHapO4rxgz6MWoyXnsR2dQaPUzRiZ+7qRux0jNWDRFYrg/zLvYdhV7SKws=

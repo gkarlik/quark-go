@@ -24,6 +24,7 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
+	"regexp"
 )
 
 type TestServiceDiscovery struct{}
@@ -141,12 +142,16 @@ func TestServiceBase(t *testing.T) {
 	assert.Equal(t, tracer, ts.Options().Tracer)
 
 	addr, _ := quark.GetHostAddress(5678)
-	// address will change on CI server
-	assert.Equal(t, "169.254.213.40:5678", addr.String())
+	// address will change on CI server - validate only IP address format
+	matched, err := regexp.MatchString("\\d+\\.\\d+\\.\\d+.\\d+:5678", addr.String())
+	assert.NoError(t, err, "Invalid IP address")
+	assert.Equal(t, true, matched)
 
 	addr, _ = quark.GetHostAddress(0)
-	// address will change on CI server
-	assert.Equal(t, "169.254.213.40", addr.String())
+	// address will change on CI server - validate only IP address format
+	matched, err = regexp.MatchString("\\d+\\.\\d+\\.\\d+.\\d+", addr.String())
+	assert.NoError(t, err, "Invalid IP address")
+	assert.Equal(t, true, matched)
 }
 
 func TestLackOfName(t *testing.T) {

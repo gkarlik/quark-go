@@ -1,4 +1,5 @@
-# quark-go
+# quark-go [![Go Report Card](https://goreportcard.com/badge/github.com/gkarlik/quark-go)](https://goreportcard.com/report/github.com/gkarlik/quark-go) [![Build Status](https://travis-ci.org/gkarlik/quark-go.svg?branch=master)](https://travis-ci.org/gkarlik/quark-go) [![Coverage Status](https://coveralls.io/repos/github/gkarlik/quark-go/badge.svg?branch=master)](https://coveralls.io/github/gkarlik/quark-go?branch=master) [![GoDoc](https://godoc.org/github.com/gkarlik/quark-go?status.svg)](https://godoc.org/github.com/gkarlik/quark-go)
+
 
 Quark-go is a quark size (meaning very very small) toolbelt for building microservices in golang. 
 
