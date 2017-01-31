@@ -42,4 +42,4 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
 
 ## Examples
 
-Please see repo with [example](https://github.com/gkarlik/quark-go-example). (TODO)
+Please see repo with [example](https://github.com/gkarlik/quark-go-example)
