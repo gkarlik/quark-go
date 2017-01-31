@@ -3,7 +3,7 @@
 
 Quark-go is a quark size (meaning very very small) toolbelt for building microservices in golang. 
 
-**Important**: Work in progress! Some interfaces could be changed!
+**Important:** Work in progress! Some interfaces could be changed!
 
 ## Goals
 The goal of the project is to help quickly build microservices using distributed programming best practices and tools which are 
@@ -42,4 +42,4 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
 
 ## Examples
 
-Please see repo with [example](https://github.com/gkarlik/quark-go-example)
+Please see repo with [example](https://github.com/gkarlik/quark-go-example).
