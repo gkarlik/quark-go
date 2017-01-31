@@ -12,7 +12,7 @@ focus more on business logic instead of tweaking and finding right tools to do t
 
 Quark-go is very extensible and allows to implement custom providers for all specified features below. It is not the goal of the project
 to support all available tools, configurations and components on the market. Project is focused to deliver community proven best preconfigured tools
-and components prepared OOTB to use it in your projects.
+and components prepared OOTB to use it in your projects. It aims to be end-to-end solution for modern, distributed applications.
 
 If you are interesed in more "enterprise" solutions. Please see the following projects:
 * [go-kit](https://github.com/go-kit/kit)
@@ -31,7 +31,7 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
 * **Request Tracing** - using [opentracing](http://opentracing.io/) and [zipkin](http://zipkin.io/)
 
 ## Planned features
-* **More security** - HTTP headers, OpenID Connect etc.
+* **More security** - HTTP headers, OpenID Connect, Two-factor authentication etc.
 * **Searchability** - Elasticsearch indexing and searching
 * **Data Access Layer** - patterns for accessing data (relational and document oriented)
 * **Caching** - data caching patterns
