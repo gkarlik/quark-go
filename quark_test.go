@@ -355,3 +355,36 @@ func TestCallHTTPService(t *testing.T) {
 	assert.Contains(t, data.body, "root_span")
 	assert.Contains(t, data.body, "extracted_span")
 }
+
+func TestMessageContextCarrierBinary(t *testing.T) {
+	context := broker.MessageContext{}
+	mc := &quark.MessageContextCarrier{Context: &context}
+
+	test_key := "test-bin"
+	test_val := "test_value"
+	test_val_bin := string(base64.StdEncoding.EncodeToString([]byte(test_val)))
+
+	mc.Set(test_key, test_val)
+
+	err := mc.ForeachKey(func(key string, value string) error {
+		assert.Equal(t, test_key, key)
+		assert.Equal(t, test_val_bin, value)
+
+		return nil
+	})
+
+	assert.NoError(t, err, "ForeachKey returned an error")
+}
+
+func TestMessageContextCarrierError(t *testing.T) {
+	context := broker.MessageContext{}
+	mc := &quark.MessageContextCarrier{Context: &context}
+
+	mc.Set("test_key", "test_val")
+
+	err := mc.ForeachKey(func(key string, value string) error {
+		return errors.New("Key not found")
+	})
+
+	assert.Error(t, err, "ForeachKey should return an error")
+}
