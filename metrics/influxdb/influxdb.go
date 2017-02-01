@@ -143,7 +143,7 @@ func (r MetricsReporter) Report(ms ...metrics.Metric) error {
 }
 
 // Dispose closes InfluxDB client and cleans up MetricsReporter instance.
-func (r MetricsReporter) Dispose() {
+func (r *MetricsReporter) Dispose() {
 	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing metrics reporter component")
 
 	if r.Client != nil {

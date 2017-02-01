@@ -114,4 +114,8 @@ func (sb ServiceBase) Dispose() {
 	if sb.Discovery() != nil {
 		sb.Discovery().Dispose()
 	}
+
+	if sb.Tracer() != nil {
+		sb.Tracer().Dispose()
+	}
 }

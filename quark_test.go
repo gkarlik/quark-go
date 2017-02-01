@@ -14,6 +14,8 @@ import (
 
 	"errors"
 
+	"regexp"
+
 	"github.com/gkarlik/quark-go"
 	"github.com/gkarlik/quark-go/broker"
 	"github.com/gkarlik/quark-go/logger"
@@ -24,7 +26,6 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
-	"regexp"
 )
 
 type TestServiceDiscovery struct{}
@@ -337,9 +338,9 @@ func TestCallHTTPService(t *testing.T) {
 		span.Finish()
 	}))
 	defer func() {
+		s.Dispose()
 		hs.Close()
 		ts.Close()
-		s.Dispose()
 	}()
 
 	span := tracer.StartSpan("root_span")

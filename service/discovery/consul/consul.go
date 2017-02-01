@@ -133,7 +133,7 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.U
 }
 
 // Dispose closes consul client and cleans up ServiceDiscovery instance.
-func (c ServiceDiscovery) Dispose() {
+func (c *ServiceDiscovery) Dispose() {
 	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing service discovery component")
 
 	if c.Client != nil {
