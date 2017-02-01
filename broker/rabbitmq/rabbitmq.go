@@ -102,6 +102,12 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 		}, "Cannot parse message body")
 	}
 
+	// fill message headers with context
+	headers := amqp.Table{}
+	for k, v := range m.Context {
+		headers[k] = v
+	}
+
 	err = ch.Publish(
 		"",     // exchange
 		q.Name, // routing key
@@ -110,6 +116,7 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 		amqp.Publishing{
 			ContentType: "application/json",
 			Body:        body,
+			Headers:     headers,
 		})
 
 	if err != nil {
@@ -192,9 +199,16 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	mgs := make(chan broker.Message)
 	go func() {
 		for msg := range messages {
+			// create message context from headers
+			context := broker.MessageContext{}
+			for k, v := range msg.Headers {
+				context[k] = v.(string)
+			}
+
 			mgs <- broker.Message{
-				Key:   q.Name,
-				Value: msg.Body,
+				Key:     q.Name,
+				Value:   msg.Body,
+				Context: context,
 			}
 		}
 	}()
@@ -203,7 +217,7 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 }
 
 // Dispose closes RabbitMQ connection.
-func (b MessageBroker) Dispose() {
+func (b *MessageBroker) Dispose() {
 	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing message broker component")
 
 	if b.Connection != nil {

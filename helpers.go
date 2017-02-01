@@ -15,6 +15,7 @@ import (
 
 	"google.golang.org/grpc/metadata"
 
+	"github.com/gkarlik/quark-go/broker"
 	"github.com/gkarlik/quark-go/metrics"
 	"github.com/gkarlik/quark-go/service/trace"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -158,6 +159,41 @@ func StartRPCSpan(s Service, name string, ctx context.Context) trace.Span {
 	}
 
 	if err != nil || !ok {
+		span = s.Tracer().StartSpan(name)
+	}
+
+	return span
+}
+
+// MessageContextCarrier represents carrier for span propagation using broker message context.
+type MessageContextCarrier struct {
+	Context *broker.MessageContext
+}
+
+// Set sets metadata value inside broker message context.
+func (c MessageContextCarrier) Set(key, val string) {
+	k := strings.ToLower(key)
+	if strings.HasSuffix(k, "-bin") {
+		val = string(base64.StdEncoding.EncodeToString([]byte(val)))
+	}
+
+	(*c.Context)[k] = val
+}
+
+// ForeachKey iterates over broker message context key.
+func (c MessageContextCarrier) ForeachKey(handler func(key, val string) error) error {
+	for k, v := range *c.Context {
+		if err := handler(k, v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// StartMessageSpan starts span with name and parent span taken from message.
+func StartMessageSpan(s Service, name string, m broker.Message) trace.Span {
+	span, err := s.Tracer().ExtractSpan(name, opentracing.TextMap, MessageContextCarrier{Context: &m.Context})
+	if err != nil {
 		span = s.Tracer().StartSpan(name)
 	}
 
