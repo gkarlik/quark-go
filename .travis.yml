@@ -4,6 +4,9 @@ language:
 go:
   - 1.7.x
 
+services:
+  - rabbitmq
+
 install: 
   - go get -t ./...
   - go get golang.org/x/tools/cmd/cover 
