@@ -6,6 +6,10 @@ go:
 
 services:
   - rabbitmq
+  - postgresql
+
+before_script:
+  - psql -c 'create database quark_go_test;' -U postgres
 
 install: 
   - go get -t ./...
