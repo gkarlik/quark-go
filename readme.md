@@ -29,11 +29,13 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
 * **Load Balancing** - custom implementation of load balancing strategy
 * **RPC** - Remote Procedure Call client and server using [gRPC](http://www.grpc.io/) library
 * **Request Tracing** - using [opentracing](http://opentracing.io/) and [zipkin](http://zipkin.io/)
+* **Data Access Layer**
+    * **Relational databases** - using Domain-Driven Design [aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) and [repository](https://martinfowler.com/eaaCatalog/repository.html) pattern 
 
 ## Planned features
 * **More security** - HTTP headers, OpenID Connect, Two-factor authentication etc.
 * **Searchability** - Elasticsearch indexing and searching
-* **Data Access Layer** - patterns for accessing data (relational and document oriented)
+* **Data Access Layer** - patterns for accessing data (document oriented)
 * **Caching** - data caching patterns
 
 ## Installation
@@ -42,4 +44,4 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
 
 ## Examples
 
-Please see repo with [example](https://github.com/gkarlik/quark-go-example).
+Please see repo with [example](https://github.com/gkarlik/quark-go-example) and [documentation](https://godoc.org/github.com/gkarlik/quark-go).
