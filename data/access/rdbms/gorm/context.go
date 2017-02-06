@@ -62,7 +62,7 @@ func (c *DbContext) BeginTransaction() rdbms.DbTransaction {
 
 // Dispose closes database context and cleans up DbContext instance.
 func (c *DbContext) Dispose() {
-	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Closing database context")
+	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing database context")
 
 	if c.DB != nil {
 		err := c.DB.Close()
