@@ -32,6 +32,11 @@ func NewServiceDiscovery(address string) *ServiceDiscovery {
 		}, "Cannot connect to Consul server")
 	}
 
+	logger.Log().InfoWithFields(logger.Fields{
+		"address":   address,
+		"component": componentName,
+	}, "Service discovery component initialized")
+
 	return &ServiceDiscovery{
 		Client: c,
 	}

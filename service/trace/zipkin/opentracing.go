@@ -79,6 +79,13 @@ func NewTracer(address string, serviceName string, serviceAddress *url.URL, opts
 
 	opentracing.SetGlobalTracer(tracer)
 
+	logger.Log().InfoWithFields(logger.Fields{
+		"address":       address,
+		"service":       serviceName,
+		"serviceAdress": serviceAddress,
+		"component":     componentName,
+	}, "Tracer component initialized")
+
 	return &Tracer{
 		Collector: c,
 	}

@@ -15,7 +15,7 @@ type DbContext struct {
 // NewDbContext creates DbContext instance with specified SQL dialect and connection string.
 // It should be create once per goroutine and reused. It opens database connection which should be closed in defer function using Dispose method.
 func NewDbContext(dialect string, connStr string) (*DbContext, error) {
-	logger.Log().DebugWithFields(logger.Fields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"dialect":           dialect,
 		"connection_string": connStr,
 		"component":         componentName,
