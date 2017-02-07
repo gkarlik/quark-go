@@ -2,19 +2,14 @@ package quark_test
 
 import (
 	"encoding/base64"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"testing"
-
-	"google.golang.org/grpc/metadata"
-
 	"os"
-
-	"errors"
-
 	"regexp"
+	"testing"
 
 	"github.com/gkarlik/quark-go"
 	"github.com/gkarlik/quark-go/broker"
@@ -26,6 +21,7 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/metadata"
 )
 
 type TestServiceDiscovery struct{}
