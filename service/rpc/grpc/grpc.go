@@ -36,29 +36,29 @@ func (rpc *Server) Start(s quark.RPCService) {
 
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		s.Log().PanicWithFields(logger.LogFields{
+		s.Log().PanicWithFields(logger.Fields{
 			"error":     err,
 			"address":   addr,
 			"component": componentName,
 		}, "Error during listening on port")
 	}
 
-	s.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Registering gRPC server")
+	s.Log().InfoWithFields(logger.Fields{"component": componentName}, "Registering gRPC server")
 
 	if err := s.RegisterServiceInstance(rpc.server, s); err != nil {
-		s.Log().PanicWithFields(logger.LogFields{
+		s.Log().PanicWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot register service instance in RPC server")
 	}
 
-	s.Log().InfoWithFields(logger.LogFields{
+	s.Log().InfoWithFields(logger.Fields{
 		"address":   addr,
 		"component": componentName,
 	}, "Listening incomming connections")
 	// workaround for issue in gRPC library
 	if err := rpc.server.Serve(l); !strings.Contains(err.Error(), "use of closed network connection") {
-		s.Log().PanicWithFields(logger.LogFields{
+		s.Log().PanicWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Failed to serve clients")
@@ -67,7 +67,7 @@ func (rpc *Server) Start(s quark.RPCService) {
 
 // Dispose stops server and cleans up RPC server instance
 func (rpc *Server) Dispose() {
-	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing RPC server instance")
+	logger.Log().InfoWithFields(logger.Fields{"component": componentName}, "Disposing RPC server instance")
 
 	rpc.Stop()
 

@@ -155,7 +155,7 @@ func (t Tracer) ExtractSpan(name string, format interface{}, carrier interface{}
 	tracer := opentracing.GlobalTracer()
 	ctx, err := tracer.Extract(format, carrier)
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot extract span from carrier")
@@ -172,7 +172,7 @@ func (t Tracer) ExtractSpan(name string, format interface{}, carrier interface{}
 
 // Dispose closes zipkin collector and cleans up tracer instance.
 func (t *Tracer) Dispose() {
-	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing tracer component")
+	logger.Log().InfoWithFields(logger.Fields{"component": componentName}, "Disposing tracer component")
 
 	if t.Collector != nil {
 		t.Collector.Close()

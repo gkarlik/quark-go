@@ -66,7 +66,7 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 		// parse token from Authorization header
 		ah := r.Header.Get("Authorization")
 		if ah == "" {
-			logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "No authorization header")
+			logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "No authorization header")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -74,14 +74,14 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 		s := strings.Split(ah, " ")
 
 		if len(s) != 2 || strings.ToUpper(s[0]) != "BEARER" {
-			logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Incorrect authorization header")
+			logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Incorrect authorization header")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
 		tokenString := s[1]
 		if tokenString == "" {
-			logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "TokenString is empty")
+			logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "TokenString is empty")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -95,7 +95,7 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 		})
 
 		if err != nil {
-			logger.Log().ErrorWithFields(logger.LogFields{
+			logger.Log().ErrorWithFields(logger.Fields{
 				"error":       err,
 				"tokenString": tokenString,
 				"component":   componentName,
@@ -109,7 +109,7 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 			ctx := context.WithValue(r.Context(), am.Options.ContextKey, *claims)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
-			logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Token is invalid")
+			logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Token is invalid")
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -120,7 +120,7 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.Request) {
 	// check if method is POST
 	if r.Method != http.MethodPost {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"method":    r.Method,
 			"component": componentName,
 		}, "Incorrect http method")
@@ -132,7 +132,7 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 	var credentials Credentials
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&credentials); err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":       err,
 			"credentials": credentials,
 			"component":   componentName,
@@ -144,7 +144,7 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 	// authenticate user using external function
 	claims, err := am.Options.Authenticate(credentials)
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot authenticate user")
@@ -156,7 +156,7 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(am.Options.Secret))
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot sign token")
@@ -164,7 +164,7 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 		return
 	}
 
-	logger.Log().InfoWithFields(logger.LogFields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"token":     tokenString,
 		"component": componentName,
 	}, "Token generated - sending to client")

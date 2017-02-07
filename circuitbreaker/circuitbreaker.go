@@ -29,20 +29,20 @@ func (cb DefaultCircuitBreaker) Execute(f func() (interface{}, error), opts ...O
 
 	r, err := f()
 	if err != nil {
-		logger.Log().WarningWithFields(logger.LogFields{
+		logger.Log().WarningWithFields(logger.Fields{
 			"error":     err,
 			"attempts":  options.Attempts,
 			"component": componentName,
 		}, "Detected failure. Retrying...")
 
 		for i := 1; i <= options.Attempts; i++ {
-			logger.Log().InfoWithFields(logger.LogFields{
+			logger.Log().InfoWithFields(logger.Fields{
 				"timeout":   options.Timeout,
 				"component": componentName,
 			}, "Sleeping for configured timeout...")
 			time.Sleep(options.Timeout)
 
-			logger.Log().InfoWithFields(logger.LogFields{
+			logger.Log().InfoWithFields(logger.Fields{
 				"attempt":   i,
 				"from":      options.Attempts,
 				"component": componentName,
@@ -50,21 +50,21 @@ func (cb DefaultCircuitBreaker) Execute(f func() (interface{}, error), opts ...O
 
 			r, err = f()
 			if err != nil {
-				logger.Log().WarningWithFields(logger.LogFields{
+				logger.Log().WarningWithFields(logger.Fields{
 					"error":     err,
 					"attempt":   i,
 					"component": componentName,
 				}, "Last execution failed")
 				continue
 			} else {
-				logger.Log().InfoWithFields(logger.LogFields{
+				logger.Log().InfoWithFields(logger.Fields{
 					"attempt":   i,
 					"component": componentName,
 				}, "Last retry succeed")
 				return r, nil
 			}
 		}
-		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "All retries failed.")
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "All retries failed.")
 
 		return nil, err
 	}

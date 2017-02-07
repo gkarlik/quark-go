@@ -4,48 +4,48 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-// LogFields represents map between parameter name and value.
-type LogFields map[string]interface{}
+// Fields represents map between log parameter name and value.
+type Fields map[string]interface{}
 
-// LogLevel represents logging level.
-type LogLevel uint8
+// Level represents logging level.
+type Level uint8
 
 const (
-	// PanicLogLevel represents Panic logging level.
-	PanicLogLevel LogLevel = iota
-	// FatalLogLevel represents Fatal logging level.
-	FatalLogLevel
-	// ErrorLogLevel represents Error logging level.
-	ErrorLogLevel
-	// WarningLogLevel represents Warning logging level.
-	WarningLogLevel
-	// InfoLogLevel represents Panic Info level.
-	InfoLogLevel
-	// DebugLogLevel represents Debug logging level.
-	DebugLogLevel
+	// PanicLevel represents Panic logging level.
+	PanicLevel Level = iota
+	// FatalLevel represents Fatal logging level.
+	FatalLevel
+	// ErrorLevel represents Error logging level.
+	ErrorLevel
+	// WarningLevel represents Warning logging level.
+	WarningLevel
+	// InfoLevel represents Panic Info level.
+	InfoLevel
+	// DebugLevel represents Debug logging level.
+	DebugLevel
 )
 
 // Logger represents logging mechanism.
 type Logger interface {
 	Panic(args ...interface{})
-	PanicWithFields(fields LogFields, args ...interface{})
+	PanicWithFields(fields Fields, args ...interface{})
 
 	Fatal(args ...interface{})
-	FatalWithFields(fields LogFields, args ...interface{})
+	FatalWithFields(fields Fields, args ...interface{})
 
 	Error(args ...interface{})
-	ErrorWithFields(fields LogFields, args ...interface{})
+	ErrorWithFields(fields Fields, args ...interface{})
 
 	Warning(args ...interface{})
-	WarningWithFields(fields LogFields, args ...interface{})
+	WarningWithFields(fields Fields, args ...interface{})
 
 	Info(args ...interface{})
-	InfoWithFields(fields LogFields, args ...interface{})
+	InfoWithFields(fields Fields, args ...interface{})
 
 	Debug(args ...interface{})
-	DebugWithFields(fields LogFields, args ...interface{})
+	DebugWithFields(fields Fields, args ...interface{})
 
-	SetLogLevel(level LogLevel)
+	SetLevel(level Level)
 }
 
 var logger = NewLogger()
@@ -80,7 +80,7 @@ func (logger LogrusLogger) Panic(args ...interface{}) {
 }
 
 // PanicWithFields logs message with custom fields and panic.
-func (logger LogrusLogger) PanicWithFields(fields LogFields, args ...interface{}) {
+func (logger LogrusLogger) PanicWithFields(fields Fields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Panic(args...)
 }
 
@@ -90,7 +90,7 @@ func (logger LogrusLogger) Fatal(args ...interface{}) {
 }
 
 // FatalWithFields logs message with custom fields and calls exit(1).
-func (logger LogrusLogger) FatalWithFields(fields LogFields, args ...interface{}) {
+func (logger LogrusLogger) FatalWithFields(fields Fields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Fatal(args...)
 }
 
@@ -100,7 +100,7 @@ func (logger LogrusLogger) Error(args ...interface{}) {
 }
 
 // ErrorWithFields logs error level message with custom fields.
-func (logger LogrusLogger) ErrorWithFields(fields LogFields, args ...interface{}) {
+func (logger LogrusLogger) ErrorWithFields(fields Fields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Error(args...)
 }
 
@@ -110,7 +110,7 @@ func (logger LogrusLogger) Warning(args ...interface{}) {
 }
 
 // WarningWithFields logs warning level message with custom fields.
-func (logger LogrusLogger) WarningWithFields(fields LogFields, args ...interface{}) {
+func (logger LogrusLogger) WarningWithFields(fields Fields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Warning(args...)
 }
 
@@ -120,7 +120,7 @@ func (logger LogrusLogger) Info(args ...interface{}) {
 }
 
 // InfoWithFields logs info level message with custom fields.
-func (logger LogrusLogger) InfoWithFields(fields LogFields, args ...interface{}) {
+func (logger LogrusLogger) InfoWithFields(fields Fields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Info(args...)
 }
 
@@ -130,11 +130,11 @@ func (logger LogrusLogger) Debug(args ...interface{}) {
 }
 
 // DebugWithFields log debug level message with custom fields.
-func (logger LogrusLogger) DebugWithFields(fields LogFields, args ...interface{}) {
+func (logger LogrusLogger) DebugWithFields(fields Fields, args ...interface{}) {
 	log.WithFields(log.Fields(fields)).Debug(args...)
 }
 
-// SetLogLevel sets logging level.
-func (logger LogrusLogger) SetLogLevel(level LogLevel) {
+// SetLevel sets logging level.
+func (logger LogrusLogger) SetLevel(level Level) {
 	log.SetLevel(log.DebugLevel)
 }

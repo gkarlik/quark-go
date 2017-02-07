@@ -60,7 +60,7 @@ func NewMetricsReporter(address string, opts ...Option) *MetricsReporter {
 
 	options.Address = address
 
-	logger.Log().InfoWithFields(logger.LogFields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"address":   address,
 		"component": componentName,
 	}, "Creating InfluxDB HTTP client")
@@ -72,7 +72,7 @@ func NewMetricsReporter(address string, opts ...Option) *MetricsReporter {
 	})
 
 	if err != nil {
-		logger.Log().PanicWithFields(logger.LogFields{
+		logger.Log().PanicWithFields(logger.Fields{
 			"address":   address,
 			"username":  options.Username,
 			"password":  options.Password,
@@ -99,7 +99,7 @@ func (r MetricsReporter) Report(ms ...metrics.Metric) error {
 	})
 
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot prepare points batch")
@@ -120,7 +120,7 @@ func (r MetricsReporter) Report(ms ...metrics.Metric) error {
 		}
 
 		if err != nil {
-			logger.Log().ErrorWithFields(logger.LogFields{
+			logger.Log().ErrorWithFields(logger.Fields{
 				"component": componentName,
 				"error":     err,
 			}, "Cannot create batch point")
@@ -132,7 +132,7 @@ func (r MetricsReporter) Report(ms ...metrics.Metric) error {
 	}
 
 	if err = r.Client.Write(bp); err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot send metrics to the server")
@@ -144,7 +144,7 @@ func (r MetricsReporter) Report(ms ...metrics.Metric) error {
 
 // Dispose closes InfluxDB client and cleans up MetricsReporter instance.
 func (r *MetricsReporter) Dispose() {
-	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing metrics reporter component")
+	logger.Log().InfoWithFields(logger.Fields{"component": componentName}, "Disposing metrics reporter component")
 
 	if r.Client != nil {
 		r.Client.Close()

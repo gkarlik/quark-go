@@ -17,10 +17,10 @@ func (t *DbTransaction) Context() rdbms.DbContext {
 
 // Rollback rollbacks database transaction.
 func (t *DbTransaction) Rollback() error {
-	logger.Log().DebugWithFields(logger.LogFields{"component": componentName}, "Transaction rollback")
+	logger.Log().DebugWithFields(logger.Fields{"component": componentName}, "Transaction rollback")
 
 	if err := t.context.DB.Rollback().Error; err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot rollback the transaction")
@@ -32,10 +32,10 @@ func (t *DbTransaction) Rollback() error {
 
 // Commit commits database transaction.
 func (t *DbTransaction) Commit() error {
-	logger.Log().DebugWithFields(logger.LogFields{"component": componentName}, "Transaction commit")
+	logger.Log().DebugWithFields(logger.Fields{"component": componentName}, "Transaction commit")
 
 	if err := t.context.DB.Commit().Error; err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot commit the transaction")

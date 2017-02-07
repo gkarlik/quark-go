@@ -15,7 +15,7 @@ type DbContext struct {
 // NewDbContext creates DbContext instance with specified SQL dialect and connection string.
 // It should be create once per goroutine and reused. It opens database connection which should be closed in defer function using Dispose method.
 func NewDbContext(dialect string, connStr string) (*DbContext, error) {
-	logger.Log().DebugWithFields(logger.LogFields{
+	logger.Log().DebugWithFields(logger.Fields{
 		"dialect":           dialect,
 		"connection_string": connStr,
 		"component":         componentName,
@@ -23,7 +23,7 @@ func NewDbContext(dialect string, connStr string) (*DbContext, error) {
 
 	db, err := gorm.Open(dialect, connStr)
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot create database context")
@@ -45,7 +45,7 @@ func (c *DbContext) IsInTransaction() bool {
 // BeginTransaction starts new database transaction. Panics if DbContext is already in transaction.
 func (c *DbContext) BeginTransaction() rdbms.DbTransaction {
 	if c.IsInTransaction() {
-		logger.Log().PanicWithFields(logger.LogFields{
+		logger.Log().PanicWithFields(logger.Fields{
 			"component": componentName,
 		}, "DbContext is already in transaction. Nested transactions are not supported!")
 	}
@@ -62,12 +62,12 @@ func (c *DbContext) BeginTransaction() rdbms.DbTransaction {
 
 // Dispose closes database context and cleans up DbContext instance.
 func (c *DbContext) Dispose() {
-	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing database context")
+	logger.Log().InfoWithFields(logger.Fields{"component": componentName}, "Disposing database context")
 
 	if c.DB != nil {
 		err := c.DB.Close()
 		if err != nil {
-			logger.Log().ErrorWithFields(logger.LogFields{
+			logger.Log().ErrorWithFields(logger.Fields{
 				"error":     err,
 				"component": componentName,
 			}, "Cannot close database context")

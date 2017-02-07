@@ -22,7 +22,7 @@ type MessageBroker struct {
 // Panics if cannot create an instance.
 func NewMessageBroker(address string, opts ...cb.Option) *MessageBroker {
 	conn, err := new(cb.DefaultCircuitBreaker).Execute(func() (interface{}, error) {
-		logger.Log().InfoWithFields(logger.LogFields{
+		logger.Log().InfoWithFields(logger.Fields{
 			"address":   address,
 			"component": componentName,
 		}, "Connecting to RabbitMQ server")
@@ -30,13 +30,13 @@ func NewMessageBroker(address string, opts ...cb.Option) *MessageBroker {
 	}, opts...)
 
 	if err != nil {
-		logger.Log().PanicWithFields(logger.LogFields{
+		logger.Log().PanicWithFields(logger.Fields{
 			"error":     err,
 			"address":   address,
 			"component": componentName,
 		}, "Cannot connect to RabbitMQ server")
 	}
-	logger.Log().InfoWithFields(logger.LogFields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"address":   address,
 		"component": componentName,
 	}, "Connected to RabbitMQ server")
@@ -46,26 +46,26 @@ func NewMessageBroker(address string, opts ...cb.Option) *MessageBroker {
 
 // PublishMessage publishes message to RabbitMQ instance.
 func (b MessageBroker) PublishMessage(m broker.Message) error {
-	logger.Log().InfoWithFields(logger.LogFields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"message":   m,
 		"component": componentName,
 	}, "Publishing message")
 
 	if b.Connection == nil {
-		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Not connected to RabbitMQ instance")
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Not connected to RabbitMQ instance")
 
 		return fmt.Errorf("[%s]: Not connected to RabbitMQ server. Please check logs and network connection", componentName)
 	}
 
 	if m.Key == "" {
-		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Cannot publish message - message key cannot be empty")
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Cannot publish message - message key cannot be empty")
 
 		return fmt.Errorf("[%s]: Cannot publish message - message key cannot be empty", componentName)
 	}
 
 	ch, err := b.Connection.Channel()
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot create channel")
@@ -84,7 +84,7 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 	)
 
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"queue":     m.Key,
 			"component": componentName,
@@ -95,7 +95,7 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 
 	body, err := json.Marshal(m.Value)
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"message":   m,
 			"component": componentName,
@@ -120,7 +120,7 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 		})
 
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"queue":     q.Name,
 			"component": componentName,
@@ -132,26 +132,26 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 
 // Subscribe subscribes to specified routing key in RabbitMQ instance.
 func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
-	logger.Log().InfoWithFields(logger.LogFields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"key":       key,
 		"component": componentName,
 	}, "Subscribing to messages with key")
 
 	if b.Connection == nil {
-		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Not connected to RabbitMQ server")
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Not connected to RabbitMQ server")
 
 		return nil, fmt.Errorf("[%s]: Not connected to RabbitMQ server. Please check logs and network connection", componentName)
 	}
 
 	if key == "" {
-		logger.Log().ErrorWithFields(logger.LogFields{"component": componentName}, "Cannot subscribe to messages - Key cannot be empty")
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Cannot subscribe to messages - Key cannot be empty")
 
 		return nil, fmt.Errorf("[%s]: Cannot subscribe to messages - Key cannot be empty", componentName)
 	}
 
 	ch, err := b.Connection.Channel()
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
 		}, "Cannot create channel")
@@ -169,7 +169,7 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	)
 
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"queue":     key,
 			"component": componentName,
@@ -189,7 +189,7 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	)
 
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.LogFields{
+		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
 			"queue":     q.Name,
 			"component": componentName,
@@ -218,7 +218,7 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 
 // Dispose closes RabbitMQ connection.
 func (b *MessageBroker) Dispose() {
-	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing message broker component")
+	logger.Log().InfoWithFields(logger.Fields{"component": componentName}, "Disposing message broker component")
 
 	if b.Connection != nil {
 		b.Connection.Close()

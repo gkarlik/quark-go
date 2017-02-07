@@ -28,7 +28,7 @@ func NewHTTPRateLimiter(interval time.Duration) *HTTPRateLimiter {
 func (rl HTTPRateLimiter) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if rl.Limiter.Allow() == false {
-			logger.Log().InfoWithFields(logger.LogFields{
+			logger.Log().InfoWithFields(logger.Fields{
 				"component": componentName,
 			}, "Too many request for the interval")
 			w.WriteHeader(429) // too many requests

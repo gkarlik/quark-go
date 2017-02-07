@@ -25,7 +25,7 @@ func NewServiceDiscovery(address string) *ServiceDiscovery {
 	})
 
 	if err != nil {
-		logger.Log().PanicWithFields(logger.LogFields{
+		logger.Log().PanicWithFields(logger.Fields{
 			"error":     err,
 			"address":   address,
 			"component": componentName,
@@ -49,7 +49,7 @@ func (c ServiceDiscovery) RegisterService(options ...discovery.Option) error {
 	_, port, _ := net.SplitHostPort(opts.Info.Address.Host)
 	p, _ := strconv.Atoi(port)
 
-	logger.Log().InfoWithFields(logger.LogFields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"ID":        opts.Info.Name,
 		"Name":      opts.Info.Name,
 		"Tags":      opts.Info.Tags,
@@ -74,7 +74,7 @@ func (c ServiceDiscovery) DeregisterService(options ...discovery.Option) error {
 		o(opts)
 	}
 
-	logger.Log().InfoWithFields(logger.LogFields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"ID":        opts.Info.Name,
 		"component": componentName,
 	}, "Deregistering service in Consul server")
@@ -94,7 +94,7 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.U
 		tag = opts.Info.Tags[0]
 	}
 
-	logger.Log().InfoWithFields(logger.LogFields{
+	logger.Log().InfoWithFields(logger.Fields{
 		"Name":      opts.Info.Name,
 		"Tags":      opts.Info.Tags,
 		"component": componentName,
@@ -117,16 +117,16 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.U
 	}
 
 	if opts.Strategy == nil {
-		logger.Log().DebugWithFields(logger.LogFields{"component": componentName}, "Load balancing strategy is not set. Picking first item from the list.")
+		logger.Log().DebugWithFields(logger.Fields{"component": componentName}, "Load balancing strategy is not set. Picking first item from the list.")
 
 		return srvs[0], nil
 	}
 
-	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Picking service using load balancing strategy")
+	logger.Log().InfoWithFields(logger.Fields{"component": componentName}, "Picking service using load balancing strategy")
 
 	sa, err := opts.Strategy.PickServiceAddress(srvs)
 	if sa != nil {
-		logger.Log().InfoWithFields(logger.LogFields{"component": componentName, "address": sa.String()})
+		logger.Log().InfoWithFields(logger.Fields{"component": componentName, "address": sa.String()})
 	}
 
 	return sa, err
@@ -134,7 +134,7 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.U
 
 // Dispose closes consul client and cleans up ServiceDiscovery instance.
 func (c *ServiceDiscovery) Dispose() {
-	logger.Log().InfoWithFields(logger.LogFields{"component": componentName}, "Disposing service discovery component")
+	logger.Log().InfoWithFields(logger.Fields{"component": componentName}, "Disposing service discovery component")
 
 	if c.Client != nil {
 		c.Client = nil
