@@ -136,5 +136,7 @@ func (logger LogrusLogger) DebugWithFields(fields Fields, args ...interface{}) {
 
 // SetLevel sets logging level.
 func (logger LogrusLogger) SetLevel(level Level) {
-	log.SetLevel(log.DebugLevel)
+	l := log.Level(uint8(level))
+
+	log.SetLevel(l)
 }
