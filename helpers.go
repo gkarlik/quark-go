@@ -114,6 +114,10 @@ func CallHTTPService(s Service, method string, url string, body io.Reader, paren
 		return nil, err
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(resp.Status)
+	}
+
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
