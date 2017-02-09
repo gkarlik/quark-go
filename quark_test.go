@@ -326,7 +326,7 @@ func TestCallHTTPService(t *testing.T) {
 
 	// service http server
 	hs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusOK)
 
 		span, err := tracer.ExtractSpan("extracted_span", opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))
 		assert.NoError(t, err, "ExtractSpan return an error")
