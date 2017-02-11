@@ -10,16 +10,17 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
-
-	"google.golang.org/grpc/metadata"
 
 	"github.com/gkarlik/quark-go/broker"
 	"github.com/gkarlik/quark-go/metrics"
 	"github.com/gkarlik/quark-go/service/trace"
 	opentracing "github.com/opentracing/opentracing-go"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/metadata"
 )
 
 // GetEnvVar gets environment variable by key. Panics is variable is not set.
@@ -202,4 +203,20 @@ func StartMessageSpan(s Service, name string, m broker.Message) trace.Span {
 	}
 
 	return span
+}
+
+// HandleInterrupt handles interrupt signal receiced by the service.
+func HandleInterrupt(s Service) <-chan bool {
+	signals := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
+
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-signals
+		s.Log().Info("Received interrupt signal")
+		done <- true
+	}()
+
+	return done
 }
