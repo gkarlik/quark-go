@@ -23,7 +23,7 @@ func NewServer() *Server {
 	}
 }
 
-// Stop gracefully stops RPC server.
+// Stop stops RPC server.
 func (rpc *Server) Stop() {
 	if rpc.server != nil {
 		rpc.server.Stop()
