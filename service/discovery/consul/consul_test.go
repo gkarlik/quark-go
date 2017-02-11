@@ -48,13 +48,13 @@ func NewConsulClient(t *HttpTransportMock) *consul.ServiceDiscovery {
 }
 
 func TestNewServiceDiscovery(t *testing.T) {
-	c := consul.NewServiceDiscovery("http://consul:8080/")
+	c := consul.NewServiceDiscovery("consul:8080/")
 	defer c.Dispose()
 
 	config := reflect.Indirect(reflect.ValueOf(c.Client)).FieldByName("config")
 	addr := config.FieldByName("Address")
 
-	assert.Equal(t, "http://consul:8080/", addr.String())
+	assert.Equal(t, "consul:8080/", addr.String())
 }
 
 func TestRegisterService(t *testing.T) {
