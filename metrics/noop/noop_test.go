@@ -1,11 +1,12 @@
 package noop_test
 
 import (
+	"testing"
+	"time"
+
 	"github.com/gkarlik/quark-go/metrics"
 	"github.com/gkarlik/quark-go/metrics/noop"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestNoopMetricsReported(t *testing.T) {

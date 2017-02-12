@@ -147,7 +147,7 @@ func (t Tracer) ContextWithSpan(ctx context.Context, span trace.Span) context.Co
 	return opentracing.ContextWithSpan(ctx, s.RawSpan)
 }
 
-// InjectSpan injects tracing span in particular format to carrier.
+// InjectSpan injects tracing span in particular format into carrier.
 func (t Tracer) InjectSpan(s trace.Span, format interface{}, carrier interface{}) error {
 	span := assertSpanType(s)
 	tracer := opentracing.GlobalTracer()
