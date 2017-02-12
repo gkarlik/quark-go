@@ -17,7 +17,10 @@ func NewMetricsReporter() *MetricsReporter {
 
 // Report only logs metrics using quark-go logger.
 func (mr *MetricsReporter) Report(ms ...metrics.Metric) error {
-	logger.Log().InfoWithFields(logger.Fields{"metrics": ms}, "Reporting metrics")
+	logger.Log().InfoWithFields(logger.Fields{
+		"metrics":   ms,
+		"component": componentName,
+	}, "Reporting metrics")
 
 	return nil
 }
