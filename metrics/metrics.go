@@ -13,7 +13,7 @@ const (
 	Gauge
 	// Histogram samples observations (usually things like request durations or response sizes) and counts them in configurable buckets. It also provides a sum of all observed values.
 	Histogram
-	// Set supports counting unique occurences of events between flushes.
+	// Set supports counting unique occurrences of events between flushes.
 	Set
 	// Summary samples observations (usually things like request durations and response sizes).
 	Summary

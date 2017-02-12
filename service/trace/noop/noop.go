@@ -124,7 +124,7 @@ func (t *Tracer) ExtractSpan(name string, format interface{}, carrier interface{
 		"format":    format,
 		"carrier":   carrier,
 		"component": componentName,
-	}, "Extracting span in particualr format from carrier")
+	}, "Extracting span in particular format from carrier")
 
 	return &Span{}, nil
 }
