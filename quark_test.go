@@ -420,3 +420,23 @@ func TestStartRPCSpanIncorrectContext(t *testing.T) {
 	span := quark.StartRPCSpan(s, "Test", context.Background())
 	assert.NotNil(t, span, "Span is not nil")
 }
+
+func TestStartMessageSpan(t *testing.T) {
+	a, _ := quark.GetHostAddress(1234)
+
+	s := &TestService{
+		ServiceBase: quark.NewService(
+			quark.Name("TestService"),
+			quark.Version("1.0"),
+			quark.Address(a),
+			quark.Tracer(noop.NewTracer())),
+	}
+	defer s.Dispose()
+
+	msg := broker.Message{
+		Context: broker.MessageContext{},
+	}
+
+	span := quark.StartMessageSpan(s, "Test", msg)
+	assert.NotNil(t, span, "Span is not nil")
+}
