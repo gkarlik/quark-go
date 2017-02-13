@@ -17,6 +17,7 @@ import (
 	"github.com/gkarlik/quark-go/metrics"
 	"github.com/gkarlik/quark-go/service/discovery"
 	"github.com/gkarlik/quark-go/service/trace"
+	"github.com/gkarlik/quark-go/service/trace/noop"
 	"github.com/gkarlik/quark-go/service/trace/zipkin"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
@@ -383,4 +384,39 @@ func TestMessageContextCarrierError(t *testing.T) {
 	})
 
 	assert.Error(t, err, "ForeachKey should return an error")
+}
+
+func TestStartRPCSpan(t *testing.T) {
+	a, _ := quark.GetHostAddress(1234)
+
+	s := &TestService{
+		ServiceBase: quark.NewService(
+			quark.Name("TestService"),
+			quark.Version("1.0"),
+			quark.Address(a),
+			quark.Tracer(noop.NewTracer())),
+	}
+	defer s.Dispose()
+
+	var md metadata.MD
+	ctx := metadata.NewContext(context.Background(), md)
+
+	span := quark.StartRPCSpan(s, "Test", ctx)
+	assert.NotNil(t, span, "Span is not nil")
+}
+
+func TestStartRPCSpanIncorrectContext(t *testing.T) {
+	a, _ := quark.GetHostAddress(1234)
+
+	s := &TestService{
+		ServiceBase: quark.NewService(
+			quark.Name("TestService"),
+			quark.Version("1.0"),
+			quark.Address(a),
+			quark.Tracer(noop.NewTracer())),
+	}
+	defer s.Dispose()
+
+	span := quark.StartRPCSpan(s, "Test", context.Background())
+	assert.NotNil(t, span, "Span is not nil")
 }
