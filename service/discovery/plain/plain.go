@@ -216,7 +216,7 @@ func (sd *ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url
 	}
 
 	var infos []ServiceInfo
-	err = json.Unmarshal(data, infos)
+	err = json.Unmarshal(data, &infos)
 	if err != nil {
 		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
@@ -236,8 +236,12 @@ func (sd *ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url
 	}
 
 	if opts.Strategy == nil {
+		logger.Log().DebugWithFields(logger.Fields{"component": componentName}, "Load balancing strategy is not set. Picking first item from the list.")
+
 		return urls[0], nil
 	}
+	logger.Log().InfoWithFields(logger.Fields{"component": componentName}, "Picking service using load balancing strategy")
+
 	return opts.Strategy.PickServiceAddress(urls)
 }
 
@@ -252,23 +256,26 @@ func (sd *ServiceDiscovery) Dispose() {
 }
 
 // Serve starts service discovery HTTP host.
-func (sd *ServiceDiscovery) Serve() error {
-	http.HandleFunc(RegisterServiceURL, sd.registerHandler)
-	http.HandleFunc(UnregisterServiceURL, sd.unregisterHandler)
-	http.HandleFunc(ListServicesURL, sd.listServicesHandler)
+func (sd *ServiceDiscovery) Serve(address string) error {
+	mux := http.NewServeMux()
 
-	ln, err := net.Listen("tcp", sd.address)
+	mux.HandleFunc(RegisterServiceURL, sd.registerHandler)
+	mux.HandleFunc(UnregisterServiceURL, sd.unregisterHandler)
+	mux.HandleFunc(ListServicesURL, sd.listServicesHandler)
+
+	ln, err := net.Listen("tcp", address)
 	if err != nil {
 		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
-			"address":   sd.address,
+			"address":   address,
 			"component": componentName,
 		}, "Cannot listen on address")
 		return err
 	}
+	sd.ln = ln
 
 	go func() {
-		http.Serve(ln, nil)
+		http.Serve(sd.ln, mux)
 	}()
 	return nil
 }
