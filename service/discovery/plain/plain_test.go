@@ -3,7 +3,6 @@ package plain_test
 import (
 	"bytes"
 	"net/http"
-	"sync"
 	"testing"
 	"time"
 
@@ -14,114 +13,98 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var discoveryService *plain.ServiceDiscovery
+var discoveryAddr string
+var testService quark.Service
+
+func getTestService() quark.Service {
+	if discoveryService == nil {
+		addr, _ := quark.GetHostAddress(7777)
+		discoveryAddr = addr.String()
+		discoveryService = plain.NewServiceDiscovery("http://" + discoveryAddr)
+
+		discoveryService.Serve(discoveryAddr)
+	}
+
+	if testService == nil {
+		sa, _ := quark.GetHostAddress(1234)
+
+		testService = &TestService{
+			ServiceBase: quark.NewService(
+				quark.Name("TestService"),
+				quark.Version("1.0"),
+				quark.Tags("A", "B"),
+				quark.Address(sa),
+				quark.Discovery(discoveryService)),
+		}
+	}
+	return testService
+}
+
 type TestService struct {
 	*quark.ServiceBase
 }
 
 func TestNewServiceDiscovery(t *testing.T) {
-	sd := plain.NewServiceDiscovery(":8080")
+	sd := plain.NewServiceDiscovery(":9999")
+	sd.Serve(":9999")
+
 	defer sd.Dispose()
 }
 
 func TestPlainDiscoveryService(t *testing.T) {
-	var wg sync.WaitGroup
+	ts := getTestService()
 
-	sa, _ := quark.GetHostAddress(1234)
-	ha, _ := quark.GetHostAddress(7777)
-	discovery := plain.NewServiceDiscovery("http://" + ha.String())
+	err := ts.Discovery().RegisterService(sd.ByInfo(ts.Info()))
+	assert.NoError(t, err, "Unexpected error during service registration")
 
-	ts := &TestService{
-		ServiceBase: quark.NewService(
-			quark.Name("TestService"),
-			quark.Version("1.0"),
-			quark.Tags("A", "B"),
-			quark.Address(sa),
-			quark.Discovery(discovery)),
-	}
-	defer ts.Dispose()
+	url, err := ts.Discovery().GetServiceAddress(
+		sd.ByName("TestService"),
+		sd.ByTag("A"),
+		sd.ByVersion("1.0"),
+		sd.UsingLBStrategy(random.NewRandomLBStrategy()))
 
-	wg.Add(1)
-	discovery.Serve(ha.String())
+	assert.NoError(t, err, "Unexpected error while getting services list")
+	assert.Equal(t, ts.Options().Info.Address.String(), url.String())
 
-	go func() {
-		err := ts.Discovery().RegisterService(sd.ByInfo(ts.Info()))
-		assert.NoError(t, err, "Unexpected error during service registration")
+	url, err = ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByTag("A"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error while getting services list")
+	assert.Equal(t, ts.Options().Info.Address.String(), url.String())
 
-		url, err := ts.Discovery().GetServiceAddress(
-			sd.ByName("TestService"),
-			sd.ByTag("A"),
-			sd.ByVersion("1.0"),
-			sd.UsingLBStrategy(random.NewRandomLBStrategy()))
+	err = ts.Discovery().DeregisterService(sd.ByName("TestService"), sd.ByTag("A"), sd.ByTag("B"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error while service deregistration")
 
-		assert.NoError(t, err, "Unexpected error while getting services list")
-		assert.Equal(t, sa.String(), url.String())
-
-		url, err = ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByTag("A"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error while getting services list")
-		assert.Equal(t, sa.String(), url.String())
-
-		err = ts.Discovery().DeregisterService(sd.ByName("TestService"), sd.ByTag("A"), sd.ByTag("B"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error while service deregistration")
-
-		url, err = ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByTag("A"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error while getting services list")
-		assert.Nil(t, url, "Url should be nil")
-
-		wg.Done()
-	}()
-
-	wg.Wait()
+	url, err = ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByTag("A"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error while getting services list")
+	assert.Nil(t, url, "Url should be nil")
 }
 
 func TestPlainDiscoveryServiceTags(t *testing.T) {
-	var wg sync.WaitGroup
+	ts := getTestService()
 
-	sa, _ := quark.GetHostAddress(1234)
-	ha, _ := quark.GetHostAddress(7777)
-	discovery := plain.NewServiceDiscovery("http://" + ha.String())
+	err := ts.Discovery().RegisterService(sd.ByInfo(ts.Info()))
+	assert.NoError(t, err, "Unexpected error during service registration")
 
-	ts := &TestService{
-		ServiceBase: quark.NewService(
-			quark.Name("TestService"),
-			quark.Version("1.0"),
-			quark.Tags("A", "B"),
-			quark.Address(sa),
-			quark.Discovery(discovery)),
-	}
-	defer ts.Dispose()
+	url, err := ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByTag("A"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error while getting services list")
+	assert.Equal(t, ts.Options().Info.Address.String(), url.String())
 
-	wg.Add(1)
-	discovery.Serve(ha.String())
+	url, err = ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByTag("C"), sd.ByTag("D"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error while getting services list")
+	assert.Nil(t, url, "Url should be nil")
 
-	go func() {
-		err := ts.Discovery().RegisterService(sd.ByInfo(ts.Info()))
-		assert.NoError(t, err, "Unexpected error during service registration")
+	err = ts.Discovery().DeregisterService(sd.ByName("TestService"), sd.ByTag("C"), sd.ByTag("D"), sd.ByTag("E"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error while getting services list")
 
-		url, err := ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByTag("A"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error while getting services list")
-		assert.Equal(t, sa.String(), url.String())
+	err = ts.Discovery().DeregisterService(sd.ByName("TestService"), sd.ByTag("C"), sd.ByTag("D"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error while getting services list")
 
-		url, err = ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByTag("C"), sd.ByTag("D"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error while getting services list")
-		assert.Nil(t, url, "Url should be nil")
+	err = ts.Discovery().RegisterService(sd.ByName("TestService"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error during service registration")
 
-		err = ts.Discovery().DeregisterService(sd.ByName("TestService"), sd.ByTag("C"), sd.ByTag("D"), sd.ByTag("E"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error while getting services list")
-
-		err = ts.Discovery().DeregisterService(sd.ByName("TestService"), sd.ByTag("C"), sd.ByTag("D"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error while getting services list")
-
-		err = ts.Discovery().RegisterService(sd.ByName("TestService"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error during service registration")
-
-		url, err = ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByVersion("1.0"))
-		assert.NoError(t, err, "Unexpected error while getting services list")
-		assert.Equal(t, "", url.String())
-
-		wg.Done()
-	}()
-
-	wg.Wait()
+	url, err = ts.Discovery().GetServiceAddress(sd.ByName("TestService"), sd.ByVersion("1.0"))
+	assert.NoError(t, err, "Unexpected error while getting services list")
+	assert.Equal(t, "", url.String())
 }
 
 func TestPlainDiscoveryServiceIncorrectAddress(t *testing.T) {
@@ -150,88 +133,40 @@ func TestPlainDiscoveryServiceIncorrectAddress(t *testing.T) {
 }
 
 func TestPlainDiscoveryServiceDuplicatedEntry(t *testing.T) {
-	var wg sync.WaitGroup
+	ts := getTestService()
 
-	sa, _ := quark.GetHostAddress(1234)
-	ha, _ := quark.GetHostAddress(7777)
-	discovery := plain.NewServiceDiscovery("http://" + ha.String())
+	err := ts.Discovery().RegisterService(sd.ByInfo(ts.Info()))
+	assert.NoError(t, err, "Unexpected error during service registration")
 
-	ts := &TestService{
-		ServiceBase: quark.NewService(
-			quark.Name("TestService"),
-			quark.Version("1.0"),
-			quark.Tags("A", "B"),
-			quark.Address(sa),
-			quark.Discovery(discovery)),
-	}
-	defer ts.Dispose()
-
-	wg.Add(1)
-	discovery.Serve(ha.String())
-
-	go func() {
-		err := ts.Discovery().RegisterService(sd.ByInfo(ts.Info()))
-		assert.NoError(t, err, "Unexpected error during service registration")
-
-		err = ts.Discovery().RegisterService(sd.ByInfo(ts.Info()))
-		assert.NoError(t, err, "Unexpected error during service registration")
-
-		wg.Done()
-	}()
-
-	wg.Wait()
+	err = ts.Discovery().RegisterService(sd.ByInfo(ts.Info()))
+	assert.NoError(t, err, "Unexpected error during service registration")
 }
 
 func TestPlainDiscoveryHandlers(t *testing.T) {
-	var wg sync.WaitGroup
+	getTestService()
 
-	sa, _ := quark.GetHostAddress(1234)
-	ha, _ := quark.GetHostAddress(7777)
-
-	addr := "http://" + ha.String()
-	discovery := plain.NewServiceDiscovery(addr)
-
-	ts := &TestService{
-		ServiceBase: quark.NewService(
-			quark.Name("TestService"),
-			quark.Version("1.0"),
-			quark.Tags("A", "B"),
-			quark.Address(sa),
-			quark.Discovery(discovery)),
+	client := &http.Client{
+		Timeout: 10 * time.Second,
 	}
-	defer ts.Dispose()
 
-	wg.Add(1)
-	discovery.Serve(ha.String())
+	r, err := http.NewRequest(http.MethodPost, "http://"+discoveryAddr+plain.RegisterServiceURL, bytes.NewBufferString("incorrect payload"))
+	assert.NoError(t, err, "Unexpected error during request preparation")
 
-	go func() {
-		client := &http.Client{
-			Timeout: 10 * time.Second,
-		}
+	resp, err := client.Do(r)
+	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	assert.NoError(t, err, "Unexpected error during HTTP call")
 
-		r, err := http.NewRequest(http.MethodPost, addr+plain.RegisterServiceURL, bytes.NewBufferString("incorrect payload"))
-		assert.NoError(t, err, "Unexpected error during request preparation")
+	r, err = http.NewRequest(http.MethodPost, "http://"+discoveryAddr+plain.UnregisterServiceURL, bytes.NewBufferString("incorrect payload"))
+	assert.NoError(t, err, "Unexpected error during request preparation")
 
-		resp, err := client.Do(r)
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-		assert.NoError(t, err, "Unexpected error during HTTP call")
+	resp, err = client.Do(r)
+	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	assert.NoError(t, err, "Unexpected error during HTTP call")
 
-		r, err = http.NewRequest(http.MethodPost, addr+plain.UnregisterServiceURL, bytes.NewBufferString("incorrect payload"))
-		assert.NoError(t, err, "Unexpected error during request preparation")
+	r, err = http.NewRequest(http.MethodPost, "http://"+discoveryAddr+plain.ListServicesURL, bytes.NewBufferString("incorrect payload"))
+	assert.NoError(t, err, "Unexpected error during request preparation")
 
-		resp, err = client.Do(r)
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-		assert.NoError(t, err, "Unexpected error during HTTP call")
-
-		r, err = http.NewRequest(http.MethodPost, addr+plain.ListServicesURL, bytes.NewBufferString("incorrect payload"))
-		assert.NoError(t, err, "Unexpected error during request preparation")
-
-		resp, err = client.Do(r)
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-		assert.NoError(t, err, "Unexpected error during HTTP call")
-
-		wg.Done()
-	}()
-
-	wg.Wait()
+	resp, err = client.Do(r)
+	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	assert.NoError(t, err, "Unexpected error during HTTP call")
 }
