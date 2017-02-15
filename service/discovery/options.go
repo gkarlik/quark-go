@@ -33,10 +33,17 @@ func ByName(name string) Option {
 	}
 }
 
+// ByVersion allows to discover service by its version.
+func ByVersion(version string) Option {
+	return func(opts *Options) {
+		opts.Info.Version = version
+	}
+}
+
 // ByTag allows to discover service by its tag(s).
 func ByTag(tag string) Option {
 	return func(opts *Options) {
-		opts.Info.Tags = []string{tag}
+		opts.Info.Tags = append(opts.Info.Tags, tag)
 	}
 }
 
