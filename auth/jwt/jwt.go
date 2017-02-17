@@ -13,8 +13,9 @@ import (
 
 // Credentials represents user credentials (username and password).
 type Credentials struct {
-	Username string `json:"username"` // user name
-	Password string `json:"password"` // password
+	Username   string            `json:"Username"`             // user name
+	Password   string            `json:"Password"`             // password
+	Properties map[string]string `json:"Properties,omitempty"` // additional properties
 }
 
 // Claims represents jwt claims.
