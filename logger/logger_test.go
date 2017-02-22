@@ -34,6 +34,9 @@ func TestLogrusLogger(t *testing.T) {
 
 	l.Info("Test info")
 	l.InfoWithFields(logger.Fields{"info": true}, "Test info")
+
+	assert.Equal(t, true, l.IsLevel(logger.DebugLevel))
+	assert.Equal(t, false, l.IsLevel(logger.ErrorLevel))
 }
 
 func TestLackOfInternalLogger(t *testing.T) {

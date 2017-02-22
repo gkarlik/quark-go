@@ -46,6 +46,7 @@ type Logger interface {
 	DebugWithFields(fields Fields, args ...interface{})
 
 	SetLevel(level Level)
+	IsLevel(level Level) bool
 }
 
 var logger = NewLogger()
@@ -139,4 +140,13 @@ func (logger LogrusLogger) SetLevel(level Level) {
 	l := log.Level(uint8(level))
 
 	log.SetLevel(l)
+}
+
+// IsLevel returs true if log level specified in parameter matches log level currently sets on logger.
+func (logger LogrusLogger) IsLevel(level Level) bool {
+	l := Level(log.GetLevel())
+	if l == level {
+		return true
+	}
+	return false
 }
