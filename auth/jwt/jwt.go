@@ -66,41 +66,34 @@ func (am AuthenticationMiddleware) authenticate(w http.ResponseWriter, r *http.R
 	// parse token from Authorization header
 	ah := r.Header.Get("Authorization")
 	if ah == "" {
-		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "No authorization header")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return nil, errors.New("No authorization header")
 	}
 
 	s := strings.Split(ah, " ")
 
 	if len(s) != 2 || strings.ToUpper(s[0]) != "BEARER" {
-		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Incorrect authorization header")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return nil, errors.New("Incorrect authorization header")
 	}
 
 	tokenString := s[1]
 	if tokenString == "" {
-		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "TokenString is empty")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return nil, errors.New("TokenString is empty")
 	}
 
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("[%s]: Unexpected signing method", componentName)
+			return nil, errors.New("Unexpected signing method")
 		}
 
 		return []byte(am.Options.Secret), nil
 	})
 
 	if err != nil {
-		logger.Log().ErrorWithFields(logger.Fields{
+		logger.Log().DebugWithFields(logger.Fields{
 			"error":       err,
 			"tokenString": tokenString,
 			"component":   componentName,
 		}, "Error parsing token string")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return nil, errors.New("Error parsing token string")
 	}
 
@@ -109,8 +102,6 @@ func (am AuthenticationMiddleware) authenticate(w http.ResponseWriter, r *http.R
 		ctx := context.WithValue(r.Context(), am.Options.ContextKey, *claims)
 		return ctx, nil
 	}
-	logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Token is invalid")
-	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	return nil, errors.New("Token is invalid")
 
 }
@@ -119,7 +110,12 @@ func (am AuthenticationMiddleware) authenticate(w http.ResponseWriter, r *http.R
 func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx, err := am.authenticate(w, r)
-		if err == nil && ctx != nil {
+		if err != nil {
+			logger.Log().ErrorWithFields(logger.Fields{"component": componentName, "error": err}, "Could not authentiate user")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if next != nil {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 	})
@@ -129,7 +125,12 @@ func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler 
 // This is method to support Negroni library.
 func (am AuthenticationMiddleware) AuthenticateWithNext(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	ctx, err := am.authenticate(w, r)
-	if err == nil && ctx != nil && next != nil {
+	if err != nil {
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName, "error": err}, "Could not authentiate user")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	if next != nil {
 		next(w, r.WithContext(ctx))
 	}
 }
