@@ -40,3 +40,27 @@ func TestHTTPRateLimiter(t *testing.T) {
 		assert.Equal(t, http.StatusTooManyRequests, r.StatusCode)
 	}
 }
+
+func TestAuthenticationWithNext(t *testing.T) {
+	interval := time.Second
+
+	hl := ratelimiter.NewHTTPRateLimiter(interval)
+	th := &TestHttpHandler{}
+	r, _ := http.NewRequest(http.MethodGet, "/test", nil)
+
+	w := httptest.NewRecorder()
+	hl.HandleWithNext(w, r, th.ServeHTTP)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	time.Sleep(interval)
+
+	w = httptest.NewRecorder()
+	hl.HandleWithNext(w, r, th.ServeHTTP)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	for i := 0; i < 10; i++ {
+		w := httptest.NewRecorder()
+		hl.HandleWithNext(w, r, th.ServeHTTP)
+		assert.Equal(t, http.StatusTooManyRequests, w.Code)
+	}
+}

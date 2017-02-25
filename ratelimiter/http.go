@@ -39,3 +39,23 @@ func (rl HTTPRateLimiter) Handle(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// HandleWithNext handles rate limits in HTTP server.
+// Responds with "429 - Too Many Requests" if requests frequency is to high.
+// This is method to support Negroni library.
+func (rl HTTPRateLimiter) HandleWithNext(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	if rl.Limiter.Allow() == false {
+		logger.Log().InfoWithFields(logger.Fields{
+			"component": componentName,
+		}, "Too many request for the interval")
+		w.WriteHeader(429) // too many requests
+		w.Write([]byte{})
+
+		logger.Log().Info(w)
+
+		return
+	}
+	if next != nil {
+		next(w, r)
+	}
+}
