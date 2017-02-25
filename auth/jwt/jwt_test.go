@@ -144,6 +144,34 @@ func TestAuthentication(t *testing.T) {
 	assert.Equal(t, string(body), "In protected page")
 }
 
+func TestAuthenticationWithNext(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	c := jwt.Credentials{
+		Username: "test",
+		Password: "test",
+	}
+
+	payload, _ := json.Marshal(c)
+	r, _ := http.NewRequest(http.MethodPost, "/generateToken", strings.NewReader(string(payload)))
+
+	am.GenerateToken(w, r)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	b, _ := ioutil.ReadAll(w.Body)
+	var data Data
+	json.Unmarshal(b, &data)
+
+	r, _ = http.NewRequest(http.MethodGet, "/authenticate", nil)
+	r.Header.Add("Authorization", "bearer "+data.Token)
+
+	am.AuthenticateWithNext(w, r, ah.ServeHTTP)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	body, _ := ioutil.ReadAll(w.Body)
+	assert.Equal(t, string(body), "In protected page")
+}
+
 func TestIncorrectAuthorizationHeader(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/authenticate", nil)

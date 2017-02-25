@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"errors"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gkarlik/quark-go/logger"
 	"golang.org/x/net/context"
@@ -61,60 +62,76 @@ func NewAuthenticationMiddleware(opts ...Option) *AuthenticationMiddleware {
 	return am
 }
 
+func (am AuthenticationMiddleware) authenticate(w http.ResponseWriter, r *http.Request) (context.Context, error) {
+	// parse token from Authorization header
+	ah := r.Header.Get("Authorization")
+	if ah == "" {
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "No authorization header")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, errors.New("No authorization header")
+	}
+
+	s := strings.Split(ah, " ")
+
+	if len(s) != 2 || strings.ToUpper(s[0]) != "BEARER" {
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Incorrect authorization header")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, errors.New("Incorrect authorization header")
+	}
+
+	tokenString := s[1]
+	if tokenString == "" {
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "TokenString is empty")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, errors.New("TokenString is empty")
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("[%s]: Unexpected signing method", componentName)
+		}
+
+		return []byte(am.Options.Secret), nil
+	})
+
+	if err != nil {
+		logger.Log().ErrorWithFields(logger.Fields{
+			"error":       err,
+			"tokenString": tokenString,
+			"component":   componentName,
+		}, "Error parsing token string")
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return nil, errors.New("Error parsing token string")
+	}
+
+	// get tokens claims and pass it into the original request
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		ctx := context.WithValue(r.Context(), am.Options.ContextKey, *claims)
+		return ctx, nil
+	}
+	logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Token is invalid")
+	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	return nil, errors.New("Token is invalid")
+
+}
+
 // Authenticate validates token using jwt specification. It parses token from 'Authorization' header which must be in form "bearer token".
 func (am AuthenticationMiddleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// parse token from Authorization header
-		ah := r.Header.Get("Authorization")
-		if ah == "" {
-			logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "No authorization header")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		s := strings.Split(ah, " ")
-
-		if len(s) != 2 || strings.ToUpper(s[0]) != "BEARER" {
-			logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Incorrect authorization header")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		tokenString := s[1]
-		if tokenString == "" {
-			logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "TokenString is empty")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
-			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("[%s]: Unexpected signing method", componentName)
-			}
-
-			return []byte(am.Options.Secret), nil
-		})
-
-		if err != nil {
-			logger.Log().ErrorWithFields(logger.Fields{
-				"error":       err,
-				"tokenString": tokenString,
-				"component":   componentName,
-			}, "Error parsing token string")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		// get tokens claims and pass it into the original request
-		if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-			ctx := context.WithValue(r.Context(), am.Options.ContextKey, *claims)
+		ctx, err := am.authenticate(w, r)
+		if err == nil && ctx != nil {
 			next.ServeHTTP(w, r.WithContext(ctx))
-		} else {
-			logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Token is invalid")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
 		}
 	})
+}
+
+// AuthenticateWithNext validates token using jwt specification. It parses token from 'Authorization' header which must be in form "bearer token".
+// This is method to support Negroni library.
+func (am AuthenticationMiddleware) AuthenticateWithNext(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	ctx, err := am.authenticate(w, r)
+	if err == nil && ctx != nil && next != nil {
+		next(w, r.WithContext(ctx))
+	}
 }
 
 // GenerateToken generates token using jwt specification, only HTTP POST method is allowed.
