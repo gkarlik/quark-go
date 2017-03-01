@@ -89,12 +89,27 @@ func getLocalIPAddress() (string, error) {
 func ReportServiceValue(s Service, name string, value interface{}) error {
 	m := metrics.Metric{
 		Name: name,
+		Date: time.Now(),
 		Tags: map[string]string{"service": s.Info().Name},
 		Values: map[string]interface{}{
 			"value": value,
 		},
 	}
 	return s.Metrics().Report(m)
+}
+
+// ReportError reports error in tracing span and in metrics collector.
+func ReportError(s Service, r *http.Request, errorKey, errorMetric string, err interface{}) {
+	if s.Tracer() != nil {
+		span := s.Tracer().SpanFromContext(r.Context())
+		if span != nil {
+			span.SetTag(errorKey, err)
+		}
+	}
+
+	if s.Metrics() != nil {
+		ReportServiceValue(s, errorMetric, 1)
+	}
 }
 
 // CallHTTPService calls HTTP service at specified url with HTTP method and body.

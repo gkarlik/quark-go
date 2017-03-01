@@ -1,7 +1,7 @@
 package ratelimiter_test
 
 import (
-	"github.com/gkarlik/quark-go/ratelimiter"
+	"github.com/gkarlik/quark-go/middleware/ratelimiter"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +18,7 @@ func (h *TestHttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func TestHTTPRateLimiter(t *testing.T) {
 	interval := time.Second
 
-	hl := ratelimiter.NewHTTPRateLimiter(interval)
+	hl := ratelimiter.NewRateLimiterMiddleware(interval)
 	h := hl.Handle(&TestHttpHandler{})
 
 	srv := httptest.NewServer(h)
@@ -44,7 +44,7 @@ func TestHTTPRateLimiter(t *testing.T) {
 func TestAuthenticationWithNext(t *testing.T) {
 	interval := time.Second
 
-	hl := ratelimiter.NewHTTPRateLimiter(interval)
+	hl := ratelimiter.NewRateLimiterMiddleware(interval)
 	th := &TestHttpHandler{}
 	r, _ := http.NewRequest(http.MethodGet, "/test", nil)
 

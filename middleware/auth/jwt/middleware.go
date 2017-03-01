@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"errors"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gkarlik/quark-go/logger"
 	"golang.org/x/net/context"
@@ -63,6 +64,10 @@ func NewAuthenticationMiddleware(opts ...Option) *AuthenticationMiddleware {
 }
 
 func (am AuthenticationMiddleware) authenticate(w http.ResponseWriter, r *http.Request) (context.Context, error) {
+	logger.Log().DebugWithFields(logger.Fields{
+		"component": componentName,
+	}, "Authenticating user request")
+
 	// parse token from Authorization header
 	ah := r.Header.Get("Authorization")
 	if ah == "" {
@@ -137,6 +142,10 @@ func (am AuthenticationMiddleware) AuthenticateWithNext(w http.ResponseWriter, r
 
 // GenerateToken generates token using jwt specification, only HTTP POST method is allowed.
 func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.Request) {
+	logger.Log().DebugWithFields(logger.Fields{
+		"component": componentName,
+	}, "Generating token for the user")
+
 	// check if method is POST
 	if r.Method != http.MethodPost {
 		logger.Log().ErrorWithFields(logger.Fields{
