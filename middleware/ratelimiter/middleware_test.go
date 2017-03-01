@@ -1,12 +1,13 @@
 package ratelimiter_test
 
 import (
-	"github.com/gkarlik/quark-go/middleware/ratelimiter"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/gkarlik/quark-go/middleware/ratelimiter"
+	"github.com/stretchr/testify/assert"
 )
 
 type TestHttpHandler struct{}

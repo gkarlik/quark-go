@@ -440,3 +440,27 @@ func TestStartMessageSpan(t *testing.T) {
 	span := quark.StartMessageSpan(s, "Test", msg)
 	assert.NotNil(t, span, "Span is not nil")
 }
+
+func TestReportError(t *testing.T) {
+	a, _ := quark.GetHostAddress(1234)
+
+	metrics := &TestMetricRecorder{}
+
+	ts := &TestService{
+		ServiceBase: quark.NewService(
+			quark.Name("TestService"),
+			quark.Version("1.0"),
+			quark.Address(a),
+			quark.Metrics(metrics),
+			quark.Tracer(noop.NewTracer())),
+	}
+
+	defer ts.Dispose()
+
+	r, _ := http.NewRequest(http.MethodGet, "/test", nil)
+	quark.ReportError(ts, r, "Error", "errors", "Test error")
+
+	assert.Equal(t, "errors", metrics.Metric.Name)
+	assert.Equal(t, "TestService", metrics.Metric.Tags["service"])
+	assert.Equal(t, 1, metrics.Metric.Values["value"])
+}
