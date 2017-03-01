@@ -19,18 +19,24 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
 * [go-micro](https://github.com/micro/go-micro)
 
 ## Features
-* **Authentication** - module for HTTP [JSON Web Tokens](https://jwt.io/) authentication
 * **Message Broker** - asynchronous messaging using [RabbitMQ](https://www.rabbitmq.com/)
 * **Circuit Breaker** - custom implementation of [Circuit Breaker pattern](https://martinfowler.com/bliki/CircuitBreaker.html)
 * **Logging** - structured service diagnostics using [Logrus](https://github.com/sirupsen/logrus) library
 * **Metrics Collection** - service metrics collection using [InfluxDB](https://www.influxdata.com/)
-* **Rate Limiter** - custom implementation of HTTP rate limiter
 * **Service Discovery** - service discovery using [Consul](https://www.consul.io/)
 * **Load Balancing** - custom implementation of load balancing strategy
 * **RPC** - Remote Procedure Call client and server using [gRPC](http://www.grpc.io/) library
 * **Request Tracing** - using [opentracing](http://opentracing.io/) and [zipkin](http://zipkin.io/)
 * **Data Access Layer**
     * **Relational databases** - using Domain-Driven Design [aggregates](https://martinfowler.com/bliki/DDD_Aggregate.html) and [repository](https://martinfowler.com/eaaCatalog/repository.html) pattern 
+* **Middlewares:**
+    * **Authentication** - middleware for HTTP [JSON Web Tokens](https://jwt.io/) authentication
+    * **Rate Limiter** - custom implementation of HTTP rate limiter middleware
+    * **Error** - panic error recovery middleware
+    * **Logging** - request logging middleware
+    * **Metrics** - middleware for request metrics reporting
+    * **Security** - middleware for securing request via HTTP headers
+    * **Tracing** - request tracing middleware
 
 ## Planned features
 * **More security** - HTTP headers, OpenID Connect, Two-factor authentication etc.
