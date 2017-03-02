@@ -197,6 +197,7 @@ func (am AuthenticationMiddleware) GenerateToken(w http.ResponseWriter, r *http.
 		"component": componentName,
 	}, "Token generated - sending to client")
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "{ \"token\": %q }", tokenString)
 }
