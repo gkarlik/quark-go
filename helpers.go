@@ -15,11 +15,12 @@ import (
 	"syscall"
 	"time"
 
+	"context"
+
 	"github.com/gkarlik/quark-go/broker"
 	"github.com/gkarlik/quark-go/metrics"
 	"github.com/gkarlik/quark-go/service/trace"
 	opentracing "github.com/opentracing/opentracing-go"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
 )
 

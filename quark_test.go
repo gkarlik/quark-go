@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"testing"
 
+	"context"
 	"github.com/gkarlik/quark-go"
 	"github.com/gkarlik/quark-go/broker"
 	"github.com/gkarlik/quark-go/logger"
@@ -21,7 +22,6 @@ import (
 	"github.com/gkarlik/quark-go/service/trace/zipkin"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
 )
 

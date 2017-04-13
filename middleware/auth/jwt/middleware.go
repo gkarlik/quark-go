@@ -8,9 +8,9 @@ import (
 
 	"errors"
 
+	"context"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gkarlik/quark-go/logger"
-	"golang.org/x/net/context"
 )
 
 // Credentials represents user credentials (username and password).

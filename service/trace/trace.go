@@ -1,8 +1,8 @@
 package trace
 
 import (
+	"context"
 	"github.com/gkarlik/quark-go/system"
-	"golang.org/x/net/context"
 )
 
 // Tracer represents request tracing mechanism.

@@ -1,9 +1,9 @@
 package noop
 
 import (
+	"context"
 	"github.com/gkarlik/quark-go/logger"
 	"github.com/gkarlik/quark-go/service/trace"
-	"golang.org/x/net/context"
 )
 
 const componentName = "NoopTracer"

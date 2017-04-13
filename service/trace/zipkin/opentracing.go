@@ -3,13 +3,13 @@ package zipkin
 import (
 	"net/url"
 
+	"context"
 	cb "github.com/gkarlik/quark-go/circuitbreaker"
 	"github.com/gkarlik/quark-go/logger"
 	"github.com/gkarlik/quark-go/service/trace"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"
-	"golang.org/x/net/context"
 )
 
 const componentName = "ZipkinTracer"

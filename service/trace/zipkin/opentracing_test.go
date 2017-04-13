@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"testing"
 
+	"context"
 	"github.com/gkarlik/quark-go/service/trace/zipkin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/context"
 )
 
 func TestTracer(t *testing.T) {

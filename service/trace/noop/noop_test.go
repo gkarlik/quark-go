@@ -3,9 +3,9 @@ package noop_test
 import (
 	"testing"
 
+	"context"
 	"github.com/gkarlik/quark-go/service/trace/noop"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/context"
 )
 
 func TestNoopTracer(t *testing.T) {

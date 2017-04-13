@@ -3,13 +3,13 @@ package quark
 import (
 	"net/url"
 
+	"context"
 	"github.com/gkarlik/quark-go/broker"
 	log "github.com/gkarlik/quark-go/logger"
 	"github.com/gkarlik/quark-go/metrics"
 	"github.com/gkarlik/quark-go/service"
 	"github.com/gkarlik/quark-go/service/discovery"
 	"github.com/gkarlik/quark-go/service/trace"
-	"golang.org/x/net/context"
 )
 
 // Option represents function which is used to apply service options.
