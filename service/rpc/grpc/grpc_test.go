@@ -4,11 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"context"
 	"github.com/gkarlik/quark-go"
 	rpc "github.com/gkarlik/quark-go/service/rpc/grpc"
 	proxy "github.com/gkarlik/quark-go/service/rpc/grpc/test"
 	"github.com/stretchr/testify/assert"
+	context "golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -45,7 +45,7 @@ func TestGRPCServer(t *testing.T) {
 	go func() {
 		defer srv.Stop()
 
-		conn, err := grpc.Dial(addr.String(), grpc.WithInsecure(), grpc.WithBlock())
+		conn, err := grpc.Dial(addr.Host, grpc.WithInsecure(), grpc.WithBlock())
 		assert.NoError(t, err, "Cannot connect to gRPC server")
 		defer conn.Close()
 

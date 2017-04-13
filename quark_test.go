@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"context"
+
 	"github.com/gkarlik/quark-go"
 	"github.com/gkarlik/quark-go/broker"
 	"github.com/gkarlik/quark-go/logger"
@@ -141,7 +142,7 @@ func TestServiceBase(t *testing.T) {
 
 	addr, _ := quark.GetHostAddress(5678)
 	// address will change on CI server - validate only IP address format
-	matched, err := regexp.MatchString("\\d+\\.\\d+\\.\\d+.\\d+:5678", addr.String())
+	matched, err := regexp.MatchString("\\d+\\.\\d+\\.\\d+.\\d+:5678", addr.Host)
 	assert.NoError(t, err, "Invalid IP address")
 	assert.Equal(t, true, matched)
 

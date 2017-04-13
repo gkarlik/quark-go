@@ -20,7 +20,7 @@ var testService quark.Service
 func getTestService() quark.Service {
 	if discoveryService == nil {
 		addr, _ := quark.GetHostAddress(7777)
-		discoveryAddr = addr.String()
+		discoveryAddr = addr.Host
 		discoveryService = plain.NewServiceDiscovery("http://" + discoveryAddr)
 
 		discoveryService.Serve(discoveryAddr)

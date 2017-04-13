@@ -32,7 +32,7 @@ func (rpc *Server) Stop() {
 
 // Start registers and starts service in RPC server.
 func (rpc *Server) Start(s quark.RPCService) {
-	addr := s.Info().Address.String()
+	addr := s.Info().Address.Host
 
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
