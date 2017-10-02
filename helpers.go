@@ -176,7 +176,7 @@ func StartRPCSpan(s Service, name string, ctx context.Context) trace.Span {
 	var span trace.Span
 	var err error
 
-	md, ok := metadata.FromContext(ctx)
+	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		span, err = s.Tracer().ExtractSpan(name, opentracing.TextMap, RPCMetadataCarrier{MD: &md})
 	}

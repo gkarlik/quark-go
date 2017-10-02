@@ -400,7 +400,7 @@ func TestStartRPCSpan(t *testing.T) {
 	defer s.Dispose()
 
 	var md metadata.MD
-	ctx := metadata.NewContext(context.Background(), md)
+	ctx := metadata.NewIncomingContext(context.Background(), md)
 
 	span := quark.StartRPCSpan(s, "Test", ctx)
 	assert.NotNil(t, span, "Span is not nil")
