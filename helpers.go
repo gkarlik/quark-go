@@ -204,7 +204,7 @@ func (c MessageContextCarrier) Set(key, val string) {
 }
 
 // ForeachKey iterates over broker message context key.
-func (c MessageContextCarrier) ForeachKey(handler func(key, val string) error) error {
+func (c MessageContextCarrier) ForeachKey(handler func(key string, val interface{}) error) error {
 	for k, v := range *c.Context {
 		if err := handler(k, v); err != nil {
 			return err

@@ -44,11 +44,11 @@ func (sd *TestServiceDiscovery) Dispose() {}
 
 type TestBroker struct{}
 
-func (b *TestBroker) PublishMessage(message broker.Message) error {
+func (b *TestBroker) PublishMessage(ctx context.Context, message broker.Message) error {
 	return nil
 }
 
-func (b *TestBroker) Subscribe(key string) (<-chan broker.Message, error) {
+func (b *TestBroker) Subscribe(ctx context.Context, key string) (<-chan broker.Message, error) {
 	return nil, nil
 }
 
@@ -364,7 +364,7 @@ func TestMessageContextCarrierBinary(t *testing.T) {
 
 	mc.Set(test_key, test_val)
 
-	err := mc.ForeachKey(func(key string, value string) error {
+	err := mc.ForeachKey(func(key string, value interface{}) error {
 		assert.Equal(t, test_key, key)
 		assert.Equal(t, test_val_bin, value)
 
@@ -380,7 +380,7 @@ func TestMessageContextCarrierError(t *testing.T) {
 
 	mc.Set("test_key", "test_val")
 
-	err := mc.ForeachKey(func(key string, value string) error {
+	err := mc.ForeachKey(func(key string, value interface{}) error {
 		return errors.New("Key not found")
 	})
 

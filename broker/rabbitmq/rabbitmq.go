@@ -1,6 +1,7 @@
 package rabbitmq
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -45,7 +46,7 @@ func NewMessageBroker(address string, opts ...cb.Option) *MessageBroker {
 }
 
 // PublishMessage publishes message to RabbitMQ instance.
-func (b MessageBroker) PublishMessage(m broker.Message) error {
+func (b MessageBroker) PublishMessage(ctx context.Context, m broker.Message) error {
 	logger.Log().InfoWithFields(logger.Fields{
 		"message":   m,
 		"component": componentName,
@@ -57,10 +58,10 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 		return fmt.Errorf("[%s]: Not connected to RabbitMQ server. Please check logs and network connection", componentName)
 	}
 
-	if m.Key == "" {
-		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Cannot publish message - message key cannot be empty")
+	if m.Topic == "" {
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Cannot publish message - Topic cannot be empty")
 
-		return fmt.Errorf("[%s]: Cannot publish message - message key cannot be empty", componentName)
+		return fmt.Errorf("[%s]: Cannot publish message - Topic cannot be empty", componentName)
 	}
 
 	ch, err := b.Connection.Channel()
@@ -75,18 +76,18 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		m.Key, // name
-		false, // durable
-		false, // delete when unused
-		false, // exclusive
-		false, // no-wait
-		nil,   // arguments
+		m.Topic, // name
+		false,   // durable
+		false,   // delete when unused
+		false,   // exclusive
+		false,   // no-wait
+		nil,     // arguments
 	)
 
 	if err != nil {
 		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
-			"queue":     m.Key,
+			"queue":     m.Topic,
 			"component": componentName,
 		}, "Cannot create queue")
 
@@ -130,12 +131,12 @@ func (b MessageBroker) PublishMessage(m broker.Message) error {
 	return nil
 }
 
-// Subscribe subscribes to specified routing key in RabbitMQ instance.
-func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
+// Subscribe subscribes to specified routing key/topic in RabbitMQ instance.
+func (b MessageBroker) Subscribe(ctx context.Context, topic string) (<-chan broker.Message, error) {
 	logger.Log().InfoWithFields(logger.Fields{
-		"key":       key,
+		"topic":     topic,
 		"component": componentName,
-	}, "Subscribing to messages with key")
+	}, "Subscribing to messages with topic")
 
 	if b.Connection == nil {
 		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Not connected to RabbitMQ server")
@@ -143,10 +144,10 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 		return nil, fmt.Errorf("[%s]: Not connected to RabbitMQ server. Please check logs and network connection", componentName)
 	}
 
-	if key == "" {
-		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Cannot subscribe to messages - Key cannot be empty")
+	if topic == "" {
+		logger.Log().ErrorWithFields(logger.Fields{"component": componentName}, "Cannot subscribe to messages - Topic cannot be empty")
 
-		return nil, fmt.Errorf("[%s]: Cannot subscribe to messages - Key cannot be empty", componentName)
+		return nil, fmt.Errorf("[%s]: Cannot subscribe to messages - Topic cannot be empty", componentName)
 	}
 
 	ch, err := b.Connection.Channel()
@@ -160,7 +161,7 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	}
 
 	q, err := ch.QueueDeclare(
-		key,   // name
+		topic, // name
 		false, // durable
 		false, // delete when unused
 		false, // exclusive
@@ -171,7 +172,7 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 	if err != nil {
 		logger.Log().ErrorWithFields(logger.Fields{
 			"error":     err,
-			"queue":     key,
+			"queue":     topic,
 			"component": componentName,
 		}, "Cannot create queue")
 
@@ -206,7 +207,7 @@ func (b MessageBroker) Subscribe(key string) (<-chan broker.Message, error) {
 			}
 
 			mgs <- broker.Message{
-				Key:     q.Name,
+				Topic:   q.Name,
 				Value:   msg.Body,
 				Context: context,
 			}

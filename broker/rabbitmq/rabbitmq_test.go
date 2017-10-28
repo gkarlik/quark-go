@@ -1,6 +1,7 @@
 package rabbitmq_test
 
 import (
+	"context"
 	"testing"
 
 	"encoding/json"
@@ -44,11 +45,11 @@ func TestPublishSubscribe(t *testing.T) {
 
 	wg.Add(2)
 	go func() {
-		messages, err := ts.Broker().Subscribe(topic)
+		messages, err := ts.Broker().Subscribe(context.Background(), topic)
 		assert.NoError(t, err, "Subscribe returned an error")
 
 		for msg := range messages {
-			assert.Equal(t, topic, msg.Key)
+			assert.Equal(t, topic, msg.Topic)
 
 			var payload TestPayload
 			err := json.Unmarshal(msg.Value.([]byte), &payload)
@@ -61,18 +62,18 @@ func TestPublishSubscribe(t *testing.T) {
 	}()
 
 	go func() {
-		context := broker.MessageContext{}
-		context[key] = value
+		ctx := broker.MessageContext{}
+		ctx[key] = value
 
 		m := broker.Message{
-			Context: context,
-			Key:     topic,
+			Context: ctx,
+			Topic:   topic,
 			Value: &TestPayload{
 				Text: text,
 			},
 		}
 
-		err := ts.Broker().PublishMessage(m)
+		err := ts.Broker().PublishMessage(context.Background(), m)
 		assert.NoError(t, err, "Publish returned an error")
 
 		wg.Done()
@@ -100,10 +101,10 @@ func TestPublishSubscribeEmptyKey(t *testing.T) {
 		Value: "TestValue",
 	}
 
-	err := ts.Broker().PublishMessage(m)
+	err := ts.Broker().PublishMessage(context.Background(), m)
 	assert.Error(t, err, "Publish should return an error")
 
-	_, err = ts.Broker().Subscribe("")
+	_, err = ts.Broker().Subscribe(context.Background(), "")
 	assert.Error(t, err, "Subscribe should return an error")
 }
 
@@ -130,10 +131,10 @@ func TestBrokenConnection(t *testing.T) {
 		Value: "TestValue",
 	}
 
-	err := ts.Broker().PublishMessage(m)
+	err := ts.Broker().PublishMessage(context.Background(), m)
 	assert.Error(t, err, "Publish should return an error")
 
-	_, err = ts.Broker().Subscribe("")
+	_, err = ts.Broker().Subscribe(context.Background(), "")
 	assert.Error(t, err, "Subscribe should return an error")
 }
 
