@@ -101,6 +101,8 @@ func (b MessageBroker) PublishMessage(ctx context.Context, m broker.Message) err
 			"message":   m,
 			"component": componentName,
 		}, "Cannot parse message body")
+
+		return err
 	}
 
 	// fill message headers with context
