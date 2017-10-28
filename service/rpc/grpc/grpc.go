@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"net"
-	"strings"
 
 	"github.com/gkarlik/quark-go"
 	"github.com/gkarlik/quark-go/logger"
@@ -56,8 +55,7 @@ func (rpc *Server) Start(s quark.RPCService) {
 		"address":   addr,
 		"component": componentName,
 	}, "Listening incomming connections")
-	// workaround for issue in gRPC library
-	if err := rpc.server.Serve(l); !strings.Contains(err.Error(), "use of closed network connection") {
+	if err := rpc.server.Serve(l); err != nil {
 		s.Log().PanicWithFields(logger.Fields{
 			"error":     err,
 			"component": componentName,
