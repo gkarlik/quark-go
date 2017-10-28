@@ -13,7 +13,7 @@ import (
 
 const componentName = "RabbitMQBroker"
 
-// MessageBroker represents message broker based on RabbitMQ
+// MessageBroker represents message broker based on RabbitMQ.
 type MessageBroker struct {
 	Connection *amqp.Connection // amqp connection
 }

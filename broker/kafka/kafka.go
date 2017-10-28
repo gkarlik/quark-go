@@ -12,19 +12,19 @@ import (
 )
 
 const (
-	// Key defines Kafka message key
+	// Key defines Kafka message key.
 	Key = "key"
-	// Offset defines Kafka message offset
+	// Offset defines Kafka message offset.
 	Offset = "offset"
-	// Partition defines Kafka message partition
+	// Partition defines Kafka message partition.
 	Partition = "partition"
-	// Timestamp defines Kafka message timestamp
+	// Timestamp defines Kafka message timestamp.
 	Timestamp = "timestamp"
 
 	componentName = "KafkaBroker"
 )
 
-// MessageBroker represents message broker based on Kafka
+// MessageBroker represents message broker based on Kafka.
 type MessageBroker struct {
 	Consumer sarama.Consumer     // message consumer
 	Producer sarama.SyncProducer // message producer
