@@ -7,14 +7,15 @@ go:
 services:
   - rabbitmq
   - postgresql
+  - docker
 
 before_script:
   - psql -c 'create database quark_go_test;' -U postgres
+  - docker-compose -f docker-compose-kafka-single-broker.yml up
 
 install: 
   - go get -t ./...
   - go get golang.org/x/tools/cmd/cover 
-  # - go get github.com/mattn/goveralls
   - git clone -b multiple-packages https://github.com/haya14busa/goveralls $GOPATH/src/github.com/haya14busa/goveralls
   - cd $GOPATH/src/github.com/haya14busa/goveralls
   - go get -d -v -t ./...
