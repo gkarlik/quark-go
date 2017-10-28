@@ -115,7 +115,7 @@ func TestTracerSpanFromContext(t *testing.T) {
 	ctx := tracer.ContextWithSpan(context.Background(), span)
 	s := tracer.SpanFromContext(ctx)
 
-	cs, _ := tracer.StartSpanFromContext("span_from_context", ctx)
+	cs, _ := tracer.StartSpanFromContext(ctx, "span_from_context")
 	cs.Finish()
 
 	s.Finish()

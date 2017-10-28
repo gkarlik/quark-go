@@ -8,7 +8,7 @@ import (
 // Tracer represents request tracing mechanism.
 type Tracer interface {
 	StartSpan(name string) Span
-	StartSpanFromContext(name string, ctx context.Context) (Span, context.Context)
+	StartSpanFromContext(ctx context.Context, name string) (Span, context.Context)
 	StartSpanWithParent(name string, parent Span) Span
 	SpanFromContext(ctx context.Context) Span
 	ContextWithSpan(ctx context.Context, span Span) context.Context

@@ -33,7 +33,7 @@ func TestNoopTracer(t *testing.T) {
 	span = tracer.SpanFromContext(context.Background())
 	assert.NotNil(t, span, "Span from context is nil")
 
-	span, ctx = tracer.StartSpanFromContext("TestSpanFromContext", context.Background())
+	span, ctx = tracer.StartSpanFromContext(context.Background(), "TestSpanFromContext")
 	assert.NotNil(t, span, "Span from context is nil")
 	assert.NotNil(t, ctx, "Context is nil")
 

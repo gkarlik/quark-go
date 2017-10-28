@@ -101,7 +101,7 @@ func (t Tracer) StartSpan(name string) trace.Span {
 }
 
 // StartSpanFromContext starts tracing span with name from context.
-func (t Tracer) StartSpanFromContext(name string, ctx context.Context) (trace.Span, context.Context) {
+func (t Tracer) StartSpanFromContext(ctx context.Context, name string) (trace.Span, context.Context) {
 	s, c := opentracing.StartSpanFromContext(ctx, name)
 
 	if s == nil {

@@ -17,34 +17,22 @@ func (r *RepositoryBase) Context() rdbms.DbContext {
 
 // Save stores enity in relational database.
 func (r *RepositoryBase) Save(entity interface{}) error {
-	if err := r.context.DB.Save(entity).Error; err != nil {
-		return err
-	}
-	return nil
+	return r.context.DB.Save(entity).Error
 }
 
 // First retrives first entity from relational database which matches where criteria.
 func (r *RepositoryBase) First(out interface{}, where ...interface{}) error {
-	if err := r.context.DB.First(out, where...).Error; err != nil {
-		return err
-	}
-	return nil
+	return r.context.DB.First(out, where...).Error
 }
 
 // Find retrives entities of out type which match where criteria.
 func (r *RepositoryBase) Find(out interface{}, where ...interface{}) error {
-	if err := r.context.DB.Find(out, where...).Error; err != nil {
-		return err
-	}
-	return nil
+	return r.context.DB.Find(out, where...).Error
 }
 
 // Delete removes specified entity or all entities of out type which match where criteria.
 func (r *RepositoryBase) Delete(entity interface{}, where ...interface{}) error {
-	if err := r.context.DB.Delete(entity, where...).Error; err != nil {
-		return err
-	}
-	return nil
+	return r.context.DB.Delete(entity, where...).Error
 }
 
 // SetContext sets current database context for Repository.

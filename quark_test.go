@@ -68,7 +68,7 @@ func (t *TestTracer) StartSpan(name string) trace.Span {
 	return nil
 }
 
-func (t *TestTracer) StartSpanFromContext(name string, ctx context.Context) (trace.Span, context.Context) {
+func (t *TestTracer) StartSpanFromContext(ctx context.Context, name string) (trace.Span, context.Context) {
 	return nil, nil
 }
 
@@ -402,7 +402,7 @@ func TestStartRPCSpan(t *testing.T) {
 	var md metadata.MD
 	ctx := metadata.NewIncomingContext(context.Background(), md)
 
-	span := quark.StartRPCSpan(s, "Test", ctx)
+	span := quark.StartRPCSpan(ctx, s, "Test")
 	assert.NotNil(t, span, "Span is not nil")
 }
 
@@ -418,7 +418,7 @@ func TestStartRPCSpanIncorrectContext(t *testing.T) {
 	}
 	defer s.Dispose()
 
-	span := quark.StartRPCSpan(s, "Test", context.Background())
+	span := quark.StartRPCSpan(context.Background(), s, "Test")
 	assert.NotNil(t, span, "Span is not nil")
 }
 

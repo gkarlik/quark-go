@@ -172,7 +172,7 @@ func (c RPCMetadataCarrier) ForeachKey(handler func(key, val string) error) erro
 }
 
 // StartRPCSpan starts span with name and parent span taken from RPC context.
-func StartRPCSpan(s Service, name string, ctx context.Context) trace.Span {
+func StartRPCSpan(ctx context.Context, s Service, name string) trace.Span {
 	var span trace.Span
 	var err error
 
