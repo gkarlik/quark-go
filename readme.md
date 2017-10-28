@@ -19,7 +19,7 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
 * [go-micro](https://github.com/micro/go-micro)
 
 ## Features
-* **Message Broker** - asynchronous messaging using [RabbitMQ](https://www.rabbitmq.com/)
+* **Message Broker** - asynchronous messaging using [RabbitMQ](https://www.rabbitmq.com/) and [Apache Kafka](https://kafka.apache.org/)
 * **Circuit Breaker** - custom implementation of [Circuit Breaker pattern](https://martinfowler.com/bliki/CircuitBreaker.html)
 * **Logging** - structured service diagnostics using [Logrus](https://github.com/sirupsen/logrus) library
 * **Metrics Collection** - service metrics collection using [InfluxDB](https://www.influxdata.com/)
