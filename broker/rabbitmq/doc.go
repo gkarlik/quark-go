@@ -1,2 +1,2 @@
-// Package rabbitmq provider support for RabbitMQ message broker.
+// Package rabbitmq provides support for RabbitMQ message broker.
 package rabbitmq
