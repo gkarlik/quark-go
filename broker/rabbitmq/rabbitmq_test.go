@@ -82,7 +82,7 @@ func TestPublishSubscribe(t *testing.T) {
 	wg.Wait()
 }
 
-func TestPublishSubscribeEmptyKey(t *testing.T) {
+func TestPublishSubscribeEmptyTopic(t *testing.T) {
 	addr, _ := quark.GetHostAddress(1234)
 
 	brokerAddr := "amqp:///"
