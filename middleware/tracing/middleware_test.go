@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/gkarlik/quark-go"
-	"github.com/gkarlik/quark-go/metrics/noop"
+	"github.com/gkarlik/quark-go/metrics/prometheus"
 	"github.com/gkarlik/quark-go/middleware/tracing"
 	tr "github.com/gkarlik/quark-go/service/trace/noop"
 	"github.com/stretchr/testify/assert"
@@ -30,7 +30,7 @@ func TestTracingMiddleware(t *testing.T) {
 			quark.Name("TestService"),
 			quark.Version("1.0"),
 			quark.Address(a),
-			quark.Metrics(noop.NewMetricsReporter()),
+			quark.Metrics(prometheus.NewMetricsExposer()),
 			quark.Tracer(tr.NewTracer())),
 	}
 	defer ts.Dispose()
@@ -52,7 +52,7 @@ func TestTracingMiddlewareWithNext(t *testing.T) {
 			quark.Name("TestService"),
 			quark.Version("1.0"),
 			quark.Address(a),
-			quark.Metrics(noop.NewMetricsReporter()),
+			quark.Metrics(prometheus.NewMetricsExposer()),
 			quark.Tracer(tr.NewTracer())),
 	}
 	defer ts.Dispose()
