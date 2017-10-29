@@ -40,7 +40,9 @@ func GetHostAddress(port int) (*url.URL, error) {
 		return nil, err
 	}
 
-	u := fmt.Sprintf("%s:%d", ip, port)
+	// see: RFC 3986, section 4.2 - "network-path reference"
+	// https://github.com/golang/go/issues/18824
+	u := fmt.Sprintf("//%s:%d", ip, port)
 	if port == 0 {
 		u = fmt.Sprintf(ip)
 	}
