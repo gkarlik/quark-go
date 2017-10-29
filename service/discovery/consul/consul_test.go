@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/gkarlik/quark-go/service"
@@ -58,7 +59,7 @@ func TestNewServiceDiscovery(t *testing.T) {
 }
 
 func TestRegisterService(t *testing.T) {
-	addr := "http://server/service"
+	addr := "//192.168.1.1:9999"
 	url, _ := url.Parse(addr)
 
 	info := service.Info{
@@ -80,9 +81,9 @@ func TestRegisterService(t *testing.T) {
 	b, _ := ioutil.ReadAll(m.Request.Body)
 	json.Unmarshal(b, sr)
 
-	assert.Equal(t, addr, sr.Address)
+	assert.Equal(t, url.Hostname(), sr.Address)
+	assert.Equal(t, url.Port(), strconv.Itoa(sr.Port))
 	assert.Equal(t, info.Name, sr.ID)
-	assert.Equal(t, info.Address.String(), sr.Address)
 	assert.Equal(t, info.Name, sr.Name)
 	assert.Equal(t, info.Tags, sr.Tags)
 }
