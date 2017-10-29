@@ -1,6 +1,7 @@
 package quark_test
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 	"io/ioutil"
@@ -10,8 +11,6 @@ import (
 	"os"
 	"regexp"
 	"testing"
-
-	"context"
 
 	"github.com/gkarlik/quark-go"
 	"github.com/gkarlik/quark-go/broker"
@@ -56,7 +55,25 @@ func (b *TestBroker) Dispose() {}
 
 type TestMetrics struct{}
 
-func (m *TestMetrics) Report(ms ...metrics.Metric) error {
+func (tm *TestMetrics) CreateGauge(name, description string) metrics.Gauge {
+	return nil
+}
+
+func (tm *TestMetrics) CreateCounter(name, description string) metrics.Counter {
+	return nil
+}
+
+func (tm *TestMetrics) CreateHistogram(name, description string, buckets []float64) metrics.Histogram {
+	return nil
+}
+
+func (tm *TestMetrics) CreateSummary(name, description string, objectives map[float64]float64) metrics.Summary {
+	return nil
+}
+
+func (tm *TestMetrics) Expose() {}
+
+func (tm *TestMetrics) ExposeHandler() http.Handler {
 	return nil
 }
 
@@ -264,41 +281,6 @@ func TestRPCMetadataCarrierError(t *testing.T) {
 	assert.Error(t, err, "ForeachKey should return an error")
 }
 
-type TestMetricRecorder struct {
-	Metric metrics.Metric
-}
-
-func (sm *TestMetricRecorder) Report(m ...metrics.Metric) error {
-	sm.Metric = m[0]
-
-	return nil
-}
-
-func (sm *TestMetricRecorder) Dispose() {}
-
-func TestReportServiceValue(t *testing.T) {
-	a, _ := quark.GetHostAddress(1234)
-
-	metrics := &TestMetricRecorder{}
-
-	ts := &TestService{
-		ServiceBase: quark.NewService(
-			quark.Name("TestService"),
-			quark.Version("1.0"),
-			quark.Address(a),
-			quark.Metrics(metrics)),
-	}
-
-	defer ts.Dispose()
-
-	err := quark.ReportServiceValue(ts, "TestMetric", 1)
-
-	assert.NoError(t, err, "ReportServiceValue returns an error")
-	assert.Equal(t, "TestMetric", metrics.Metric.Name)
-	assert.Equal(t, "TestService", metrics.Metric.Tags["service"])
-	assert.Equal(t, 1, metrics.Metric.Values["value"])
-}
-
 func TestCallHTTPService(t *testing.T) {
 	data := struct {
 		url  string
@@ -440,28 +422,4 @@ func TestStartMessageSpan(t *testing.T) {
 
 	span := quark.StartMessageSpan(s, "Test", msg)
 	assert.NotNil(t, span, "Span is not nil")
-}
-
-func TestReportError(t *testing.T) {
-	a, _ := quark.GetHostAddress(1234)
-
-	metrics := &TestMetricRecorder{}
-
-	ts := &TestService{
-		ServiceBase: quark.NewService(
-			quark.Name("TestService"),
-			quark.Version("1.0"),
-			quark.Address(a),
-			quark.Metrics(metrics),
-			quark.Tracer(noop.NewTracer())),
-	}
-
-	defer ts.Dispose()
-
-	r, _ := http.NewRequest(http.MethodGet, "/test", nil)
-	quark.ReportError(ts, r, "Error", "errors", "Test error")
-
-	assert.Equal(t, "errors", metrics.Metric.Name)
-	assert.Equal(t, "TestService", metrics.Metric.Tags["service"])
-	assert.Equal(t, 1, metrics.Metric.Values["value"])
 }

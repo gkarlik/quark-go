@@ -21,7 +21,7 @@ type Options struct {
 	Logger    log.Logger                 // service logger interface implementation
 	Discovery discovery.ServiceDiscovery // service discovery interface implementation
 	Broker    broker.MessageBroker       // service message broker interface implementation
-	Metrics   metrics.Reporter           // service metrics collector interface implementation
+	Metrics   metrics.Exposer            // service metrics collector interface implementation
 	Tracer    trace.Tracer               // service request tracer interface implementation
 
 	Context context.Context // service context
@@ -84,8 +84,8 @@ func Tracer(t trace.Tracer) Option {
 }
 
 // Metrics allows to set service metrics collector implementation.
-func Metrics(r metrics.Reporter) Option {
+func Metrics(e metrics.Exposer) Option {
 	return func(o *Options) {
-		o.Metrics = r
+		o.Metrics = e
 	}
 }

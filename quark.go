@@ -17,7 +17,7 @@ type Service interface {
 	Log() logger.Logger                    // service logger
 	Discovery() discovery.ServiceDiscovery // service discovery
 	Broker() broker.MessageBroker          // service message broker
-	Metrics() metrics.Reporter             // service metrics collector
+	Metrics() metrics.Exposer              // service metrics collector
 	Tracer() trace.Tracer                  // service request tracer
 
 	system.Disposer
@@ -70,7 +70,7 @@ func (sb ServiceBase) Info() service.Info {
 }
 
 // Metrics gets service metrics collector instance.
-func (sb ServiceBase) Metrics() metrics.Reporter {
+func (sb ServiceBase) Metrics() metrics.Exposer {
 	return sb.options.Metrics
 }
 
