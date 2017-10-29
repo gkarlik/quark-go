@@ -59,7 +59,7 @@ func (c ServiceDiscovery) RegisterService(options ...discovery.Option) error {
 		"Name":      opts.Info.Name,
 		"Tags":      opts.Info.Tags,
 		"Port":      p,
-		"Address":   opts.Info.Address.String(),
+		"Address":   opts.Info.Address.Host,
 		"component": componentName,
 	}, "Registering service in Consul server")
 
@@ -68,7 +68,7 @@ func (c ServiceDiscovery) RegisterService(options ...discovery.Option) error {
 		Name:    opts.Info.Name,
 		Tags:    opts.Info.Tags,
 		Port:    p,
-		Address: opts.Info.Address.String(),
+		Address: opts.Info.Address.Hostname(),
 	})
 }
 
