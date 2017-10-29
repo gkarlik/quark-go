@@ -22,7 +22,7 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
 * **Message Broker** - asynchronous messaging using [RabbitMQ](https://www.rabbitmq.com/) and [Apache Kafka](https://kafka.apache.org/)
 * **Circuit Breaker** - custom implementation of [Circuit Breaker pattern](https://martinfowler.com/bliki/CircuitBreaker.html)
 * **Logging** - structured service diagnostics using [Logrus](https://github.com/sirupsen/logrus) library
-* **Metrics Collection** - service metrics collection using [InfluxDB](https://www.influxdata.com/)
+* **Metrics Collection** - service metrics collection using [Prometheus](https://prometheus.io/)
 * **Service Discovery** - service discovery using [Consul](https://www.consul.io/)
 * **Load Balancing** - custom implementation of load balancing strategy
 * **RPC** - Remote Procedure Call client and server using [gRPC](http://www.grpc.io/) library
@@ -34,7 +34,7 @@ If you are interesed in more "enterprise" solutions. Please see the following pr
     * **Rate Limiter** - custom implementation of HTTP rate limiter middleware
     * **Error** - panic error recovery middleware
     * **Logging** - request logging middleware
-    * **Metrics** - middleware for request metrics reporting
+    * **Metrics** - middleware for request metrics exposing
     * **Security** - middleware for securing request via HTTP headers
     * **Tracing** - request tracing middleware
 
