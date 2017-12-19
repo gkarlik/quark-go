@@ -9,9 +9,9 @@ services:
   - postgresql
   - docker
 
-before_script:
-  - psql -c 'create database quark_go_test;' -U postgres
+before_install:
   - docker-compose -f docker-compose-kafka-single-broker.yml up -d
+  - docker ps -a
 
 install: 
   - go get -t ./...
@@ -21,6 +21,9 @@ install:
   - go get -d -v -t ./...
   - go install
   - cd -
+
+before_script:
+  - psql -c 'create database quark_go_test;' -U postgres
 
 script: 
   - go test -v ./...
