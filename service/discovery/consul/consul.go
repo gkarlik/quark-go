@@ -1,6 +1,7 @@
 package consul
 
 import (
+	"fmt"
 	"net"
 	"net/url"
 	"strconv"
@@ -113,7 +114,7 @@ func (c ServiceDiscovery) GetServiceAddress(options ...discovery.Option) (*url.U
 
 	srvs := make([]*url.URL, 0, len(services))
 	for _, s := range services {
-		addr, _ := url.Parse(s.Service.Address)
+		addr, _ := url.Parse(fmt.Sprintf("//%s:%d", s.Service.Address, s.Service.Port))
 		srvs = append(srvs, addr)
 	}
 
