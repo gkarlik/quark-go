@@ -59,8 +59,7 @@ func TestNewServiceDiscovery(t *testing.T) {
 }
 
 func TestRegisterService(t *testing.T) {
-	addr := "//192.168.1.1:9999"
-	url, _ := url.Parse(addr)
+	url, _ := url.Parse("//127.0.0.1:9999")
 
 	info := service.Info{
 		Name:    "ServiceName",
@@ -104,17 +103,18 @@ func TestDeregisterService(t *testing.T) {
 func TestGetServiceAddress(t *testing.T) {
 	name := "ServiceID"
 	tag := "A"
-	addr := "http://server/service"
+	addr, _ := url.Parse("//127.0.0.1:8080")
+	p, _ := strconv.Atoi(addr.Port())
 
 	m := &HttpTransportMock{}
-
 	services := make([]*api.ServiceEntry, 0)
 
 	s := &api.ServiceEntry{
 		Checks: nil,
 		Node:   nil,
 		Service: &api.AgentService{
-			Address: addr,
+			Address: addr.Hostname(),
+			Port:    p,
 			ID:      name,
 			Service: name,
 			Tags:    []string{tag},
@@ -131,25 +131,26 @@ func TestGetServiceAddress(t *testing.T) {
 		discovery.UsingLBStrategy(random.NewRandomLBStrategy()))
 
 	assert.NoError(t, err, "RegisterService returns an error")
-	assert.Equal(t, addr, a.String())
+	assert.Equal(t, addr, a)
 	assert.Equal(t, "/v1/health/service/ServiceID", m.Request.URL.Path)
 	assert.Equal(t, tag, m.Request.URL.Query()["tag"][0])
 }
 
 func TestGetServiceAddressWithoutTag(t *testing.T) {
 	name := "ServiceID"
-	addr := "http://server/service"
+	addr, _ := url.Parse("//127.0.0.1:8080")
+	p, _ := strconv.Atoi(addr.Port())
 
 	m := &HttpTransportMock{}
-
 	services := make([]*api.ServiceEntry, 0)
 
 	s := &api.ServiceEntry{
 		Checks: nil,
 		Node:   nil,
 		Service: &api.AgentService{
-			Address: addr,
+			Address: addr.Hostname(),
 			ID:      name,
+			Port:    p,
 			Service: name,
 			Tags:    nil,
 		},
@@ -164,25 +165,26 @@ func TestGetServiceAddressWithoutTag(t *testing.T) {
 		discovery.UsingLBStrategy(random.NewRandomLBStrategy()))
 
 	assert.NoError(t, err, "RegisterService returns an error")
-	assert.Equal(t, addr, a.String())
+	assert.Equal(t, addr, a)
 	assert.Equal(t, "/v1/health/service/ServiceID", m.Request.URL.Path)
 }
 
 func TestGetServiceAddressMissingLBStrategy(t *testing.T) {
 	name := "ServiceID"
 	tag := "A"
-	addr := "http://server/service"
+	addr, _ := url.Parse("//127.0.0.1:8080")
+	p, _ := strconv.Atoi(addr.Port())
 
 	m := &HttpTransportMock{}
-
 	services := make([]*api.ServiceEntry, 0)
 
 	s := &api.ServiceEntry{
 		Checks: nil,
 		Node:   nil,
 		Service: &api.AgentService{
-			Address: addr,
+			Address: addr.Hostname(),
 			ID:      name,
+			Port:    p,
 			Service: name,
 			Tags:    []string{tag},
 		},
@@ -197,7 +199,7 @@ func TestGetServiceAddressMissingLBStrategy(t *testing.T) {
 		discovery.ByTag(tag))
 
 	assert.NoError(t, err, "RegisterService returns an error")
-	assert.Equal(t, addr, a.String())
+	assert.Equal(t, addr, a)
 	assert.Equal(t, "/v1/health/service/ServiceID", m.Request.URL.Path)
 	assert.Equal(t, tag, m.Request.URL.Query()["tag"][0])
 }
